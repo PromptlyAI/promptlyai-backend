@@ -31,6 +31,7 @@ export async function login(user: UserDto) {
         if(!validPassword) throw new Error("Invalid password");
         
         const token = jwt.sign({_id: data.id}, tokenSecret || "");
+        
         return token;
     }
 }

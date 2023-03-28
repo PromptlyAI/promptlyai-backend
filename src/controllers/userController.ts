@@ -15,7 +15,7 @@ router.post(
       await register(req.body);
       return res.sendStatus(200).send("User created");
     } catch (error) {
-      res.sendStatus(400).send(error);
+      return res.sendStatus(400).send(error);
     }
   }
 );
@@ -25,7 +25,8 @@ router.post("/login", async (req: Request<{}, {}, UserDto>, res: Response) => {
     const token = await login(req.body);
     return res.sendStatus(200).send(token);
   } catch (error) {
-    res.sendStatus(400).send(error);
+    console.log(error)
+    return res.status(400).send(error);
   }
 });
 
