@@ -1,4 +1,3 @@
-import express, { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
 import Bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
@@ -7,9 +6,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const tokenSecret = process.env.TOKEN_SECRET;
-
 const prisma = new PrismaClient();
-const router = Router();
+
 export async function register(user: RegisterDto) {
   const passhash = Bcrypt.hashSync(user.password, 10);
   await prisma.user.create({

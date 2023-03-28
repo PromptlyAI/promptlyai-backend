@@ -1,7 +1,6 @@
 import express, { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
-import Bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { RegisterDto, UserDto } from "../interfaces/UserDtos";
 import { register, login } from "../services/UserService";
 
@@ -22,7 +21,7 @@ router.post(
   }
 );
 
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/login", async (req: Request<{}, {}, UserDto>, res: Response) => {
   try {
     const token = await login(req.body);
     return res.status(200).send(token);
