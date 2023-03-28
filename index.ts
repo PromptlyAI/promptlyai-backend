@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client'
+import userController from './src/controllers/userController';
 
 const prisma = new PrismaClient()
 
@@ -16,6 +17,8 @@ app.get('/', (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
+
+app.use("/user", userController);
 
 async function main() {
   // ... you will write your Prisma Client queries here
@@ -37,3 +40,6 @@ main()
     await prisma.$disconnect()
     process.exit(1)
   })
+
+
+  

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const client_1 = require("@prisma/client");
+const userController_1 = __importDefault(require("./src/controllers/userController"));
 const prisma = new client_1.PrismaClient();
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
+app.use("/user", userController_1.default);
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         // ... you will write your Prisma Client queries here
