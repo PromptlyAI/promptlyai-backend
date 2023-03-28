@@ -2,7 +2,7 @@ import express, { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
 import { PrismaClient, User } from "@prisma/client";
 import { RegisterDto, UserDto } from "../interfaces/UserDtos";
-import { register, login } from "../services/UserService";
+import { register, login } from "../services/userService";
 
 const prisma = new PrismaClient();
 const router = Router();
@@ -14,9 +14,9 @@ router.post(
   async (req: Request<{}, {}, RegisterDto>, res: Response) => {
     try {
       await register(req.body);
-      return res.status(200).send("User created");
+      return res.send("User created");
     } catch (error) {
-      res.sendStatus(400).send(error);
+      return res.sendStatus(400).send(error);
     }
   }
 );
@@ -24,9 +24,10 @@ router.post(
 router.post("/login", async (req: Request<{}, {}, UserDto>, res: Response) => {
   try {
     const token = await login(req.body);
-    return res.status(200).send(token);
+    return res.send(token);
   } catch (error) {
-    res.sendStatus(400).send(error);
+    console.log(error)
+    return res.status(400).send(error);
   }
 });
 
