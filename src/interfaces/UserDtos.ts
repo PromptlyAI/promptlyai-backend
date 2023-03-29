@@ -9,4 +9,7 @@ export interface UserDto {
   password: string;
 }
 
+export interface ForgotPasswordDto {
+  email: string;
+}
 

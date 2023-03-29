@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient, User } from "@prisma/client";
-import { RegisterDto, UserDto } from "../interfaces/UserDtos";
-import { register, login, deleteUser } from "../services/userService";
+import { ForgotPasswordDto, RegisterDto, UserDto } from "../interfaces/UserDtos";
+import { register, login, deleteUser, forgotPassword } from "../services/userService";
 import verifyToken from "../middleware/verify";
 const prisma = new PrismaClient();
 const router = Router();
@@ -55,8 +55,8 @@ router.post(
 router.post(
   "/forgotPassword",
   verifyToken,
-  async (req: Request, res: Response) => {
-    const userId = (req as any).userId;
+  async (req: Request<{},{},ForgotPasswordDto>, res: Response) => {
+    forgotPassword(req.body.email);
   }
 );
 

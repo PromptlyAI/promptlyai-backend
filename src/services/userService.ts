@@ -3,6 +3,7 @@ import Bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import { RegisterDto, UserDto } from "../interfaces/UserDtos";
 import dotenv from "dotenv";
+import { randomUUID } from "crypto";
 
 dotenv.config();
 const tokenSecret = process.env.TOKEN_SECRET;
@@ -55,4 +56,45 @@ export async function deleteUser(userId: string) {
       id: userId,
     },
   });
+  
+}
+
+export async function forgotPassword(email: string) {
+  const data = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+
+  const token = createResetToken();
+  /*
+    data.ResetToken = token;
+    data.ResetTokenExpirationDate = DateTime.Now.AddDays(1);
+
+    mailService.send(token);
+  */
+  
+}
+
+async function createResetToken() {
+  let token: string = "";
+  let exists: boolean = true;
+
+  while (exists) {
+    token = randomUUID();
+    /*
+    const data = await prisma.user.findUnique({
+      where: {
+        resetToken: token,
+      },
+    });
+    
+    if (data !== null)
+      exists = true;
+    else exists = false;
+    break;
+    */
+  }
+
+  return token;
 }
