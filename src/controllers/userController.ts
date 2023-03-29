@@ -2,7 +2,6 @@ import { Request, Response, Router } from "express";
 import { PrismaClient, User } from "@prisma/client";
 import { RegisterDto, UserDto } from "../interfaces/UserDtos";
 import { register, login } from "../services/userService";
-
 const prisma = new PrismaClient();
 const router = Router();
 
@@ -29,5 +28,8 @@ router.post("/login", async (req: Request<{}, {}, UserDto>, res: Response) => {
     return res.status(400).send(error);
   }
 });
+
+
+
 
 export default router;
