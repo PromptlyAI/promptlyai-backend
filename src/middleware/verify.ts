@@ -9,7 +9,7 @@ const verifyToken = (req:Request , res: Response, next: NextFunction): void => {
     const bearerHeader = req.headers.authorization;
     if (bearerHeader) {
       const bearerToken = bearerHeader.split(' ')[1];
-      jwt.verify(bearerToken, 'YOUR_SECRET', (err, decodedToken: any) => {
+      jwt.verify(bearerToken, process.env.TOKEN_SECRET|| "", (err, decodedToken: any) => {
         if (err) {
           res.status(401).send('Not logged-in');
         } else {
