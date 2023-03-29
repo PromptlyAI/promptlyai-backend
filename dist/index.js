@@ -9,18 +9,11 @@ const userController_1 = __importDefault(require("./src/controllers/userControll
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT;
-<<<<<<< HEAD
-=======
 app.use(express_1.default.json());
 app.use("/user", userController_1.default);
->>>>>>> 1d632deda8bdc64d2a8d367b4338f15a25a9c00a
 app.get("/", (req, res) => {
     res.send("Slaktar Server");
 });
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
-<<<<<<< HEAD
-app.use("/user", userController_1.default);
-=======
->>>>>>> 1d632deda8bdc64d2a8d367b4338f15a25a9c00a
