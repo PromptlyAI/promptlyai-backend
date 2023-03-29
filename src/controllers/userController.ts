@@ -13,9 +13,9 @@ router.post(
   async (req: Request<{}, {}, RegisterDto>, res: Response) => {
     try {
       await register(req.body);
-      return res.sendStatus(200).send("User created");
+      return res.send("User created");
     } catch (error) {
-      return res.sendStatus(400).send(error);
+      return res.status(400).send(error);
     }
   }
 );
