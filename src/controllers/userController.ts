@@ -54,7 +54,7 @@ router.post(
   "/forgotPassword",
   async (req: Request<{}, {}, ForgotPasswordDto>, res: Response) => {
     try {
-      res.send(forgotPassword(req.body.email));
+      res.send(await forgotPassword(req.body.email));
     } catch (error) {
       return res.status(400).send(error);
     }
