@@ -1,11 +1,12 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient, User } from "@prisma/client";
 import { RegisterDto, UserDto } from "../interfaces/UserDtos";
-import { register, login } from "../services/userService";
+import { register, login, deleteUser } from "../services/userService";
+import verifyToken from "../middleware/verify";
 const prisma = new PrismaClient();
 const router = Router();
 
-router.get("/get-user-info", async (req: Request, res: Response) => { });
+router.get("/get-user-info", async (req: Request, res: Response) => {});
 
 router.post(
   "/register",
@@ -24,12 +25,19 @@ router.post("/login", async (req: Request<{}, {}, UserDto>, res: Response) => {
     const token = await login(req.body);
     return res.send(token);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(400).send(error);
   }
 });
 
+router.delete("/", verifyToken ,async (req: Request, res: Response) => {
+  try {
+    await deleteUser((req as any).userId);
+    return res.send("User deleted");
 
-
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+});
 
 export default router;

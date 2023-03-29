@@ -48,3 +48,11 @@ export async function login(user: UserDto) {
     return token;
   }
 }
+
+export async function deleteUser(userId: string) {
+  const data = await prisma.user.delete({
+    where: {
+      id: userId,
+    },
+  });
+}
