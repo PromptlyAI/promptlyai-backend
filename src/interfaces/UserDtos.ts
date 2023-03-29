@@ -9,4 +9,14 @@ export interface UserDto {
   password: string;
 }
 
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+
+export interface ResetPasswordDto {
+  token: string;
+  newPassword: string;
+}
+
 
