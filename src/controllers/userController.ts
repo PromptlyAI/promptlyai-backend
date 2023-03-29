@@ -1,7 +1,18 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient, User } from "@prisma/client";
-import { ForgotPasswordDto, RegisterDto, UserDto } from "../interfaces/UserDtos";
-import { register, login, deleteUser, forgotPassword } from "../services/userService";
+import {
+  ForgotPasswordDto,
+  RegisterDto,
+  ResetPasswordDto,
+  UserDto,
+} from "../interfaces/UserDtos";
+import {
+  register,
+  login,
+  deleteUser,
+  forgotPassword,
+  resetPassword,
+} from "../services/userService";
 import verifyToken from "../middleware/verify";
 const prisma = new PrismaClient();
 const router = Router();
@@ -41,29 +52,25 @@ router.delete("/", verifyToken, async (req: Request, res: Response) => {
 
 router.post(
   "/forgotPassword",
-  verifyToken,
-  async (req: Request, res: Response) => {
+  async (req: Request<{}, {}, ForgotPasswordDto>, res: Response) => {
     try {
-      await deleteUser((req as any).userId);
-      return res.send("User deleted");
+      res.send(forgotPassword(req.body.email));
     } catch (error) {
       return res.status(400).send(error);
     }
   }
 );
 
-router.post(
-  "/forgotPassword",
-  verifyToken,
-  async (req: Request<{},{},ForgotPasswordDto>, res: Response) => {
-    forgotPassword(req.body.email);
-  }
-);
-
 router.patch(
   "/resetPassword",
-  verifyToken,
-  async (req: Request, res: Response) => {}
+  async (req: Request<{}, {}, ResetPasswordDto>, res: Response) => {
+    try {
+      await resetPassword(req.body.token, req.body.newPassword);
+      res.send("Password has been reset");
+    } catch (error) {
+      return res.status(400).send(error);
+    }
+  }
 );
 
 export default router;

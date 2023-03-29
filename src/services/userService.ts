@@ -56,24 +56,57 @@ export async function deleteUser(userId: string) {
       id: userId,
     },
   });
-  
 }
 
-export async function forgotPassword(email: string) {
-  const data = await prisma.user.findUnique({
+export async function forgotPassword(email: string): Promise<string> {
+  const token = await createResetToken();
+  
+  await prisma.user.update({
     where: {
       email: email,
     },
+    data: {
+      resetToken: token,
+      resetTokenExpirationDate: new Date(Date.now() + 86400000),
+    },
   });
 
-  const token = createResetToken();
-  /*
-    data.ResetToken = token;
-    data.ResetTokenExpirationDate = DateTime.Now.AddDays(1);
+  //mailService.send(token);
+  return token;
+}
 
-    mailService.send(token);
-  */
-  
+export async function resetPassword(
+  resetToken: string,
+  newPassword: string
+){
+  const user = await prisma.user.findFirst({
+    where: {
+      resetToken: resetToken,
+    },
+  });
+
+  if (!user || !user.resetTokenExpirationDate) {
+    throw new Error("Illa");
+  }
+
+  const now = new Date();
+  const expirationDate = new Date(user.resetTokenExpirationDate);
+
+  if (now > expirationDate) {
+    throw new Error("Illa");
+  }
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      passwordhash: Bcrypt.hashSync(newPassword, 10),
+      resetToken: null,
+      resetTokenExpirationDate: null,
+    },
+  });
+
 }
 
 async function createResetToken() {
@@ -82,18 +115,18 @@ async function createResetToken() {
 
   while (exists) {
     token = randomUUID();
-    /*
-    const data = await prisma.user.findUnique({
+
+    const data = await prisma.user.findFirst({
       where: {
-        resetToken: token,
+        resetToken: {
+          equals: token,
+        },
       },
     });
-    
-    if (data !== null)
-      exists = true;
+
+    if (data) exists = true;
     else exists = false;
     break;
-    */
   }
 
   return token;
