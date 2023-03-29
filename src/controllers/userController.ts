@@ -6,7 +6,7 @@ import { register, login } from "../services/userService";
 const prisma = new PrismaClient();
 const router = Router();
 
-router.get("/get-user-info", async (req: Request, res: Response) => {});
+router.get("/get-user-info", async (req: Request, res: Response) => { });
 
 router.post(
   "/register",
@@ -23,7 +23,7 @@ router.post(
 router.post("/login", async (req: Request<{}, {}, UserDto>, res: Response) => {
   try {
     const token = await login(req.body);
-    return res.sendStatus(200).send(token);
+    return res.send(token);
   } catch (error) {
     console.log(error)
     return res.status(400).send(error);
