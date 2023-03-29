@@ -4,6 +4,8 @@ import { PrismaClient } from "@prisma/client";
 import { RegisterDto, UserDto } from "../interfaces/UserDtos";
 import dotenv from "dotenv";
 import { randomUUID } from "crypto";
+import sendResetPasswordEmail from "../services/mailService";
+import MailDto from "../interfaces/MailDto";
 
 dotenv.config();
 const tokenSecret = process.env.TOKEN_SECRET;
@@ -60,7 +62,7 @@ export async function deleteUser(userId: string) {
 
 export async function forgotPassword(email: string): Promise<string> {
   const token = await createResetToken();
-  
+
   await prisma.user.update({
     where: {
       email: email,
@@ -70,15 +72,14 @@ export async function forgotPassword(email: string): Promise<string> {
       resetTokenExpirationDate: new Date(Date.now() + 86400000),
     },
   });
-
-  //mailService.send(token);
+  sendResetPasswordEmail({
+    to: email,
+    body: token,
+  });
   return token;
 }
 
-export async function resetPassword(
-  resetToken: string,
-  newPassword: string
-){
+export async function resetPassword(resetToken: string, newPassword: string) {
   const user = await prisma.user.findFirst({
     where: {
       resetToken: resetToken,
@@ -106,7 +107,6 @@ export async function resetPassword(
       resetTokenExpirationDate: null,
     },
   });
-
 }
 
 async function createResetToken() {
