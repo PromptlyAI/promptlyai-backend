@@ -16,6 +16,10 @@ model User {
     email        String   @unique
     name         String
     passwordhash String
+    role String @default("user")
+    createdAt DateTime @default(now())
+    resetToken String?
+    resetTokenExpirationDate DateTime?
     prompts      Prompt[]
 }
 
