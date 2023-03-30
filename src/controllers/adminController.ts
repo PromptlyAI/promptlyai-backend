@@ -1,6 +1,10 @@
 import verifyToken from '../middleware/verify'
 import { Request, Response, Router } from 'express'
-import { changeTokenBalance } from '../services/adminService'
+import {
+  changeTokenBalance,
+  changeUserRole,
+  getAllUsers,
+} from '../services/adminService'
 import { UUID } from 'crypto'
 
 const router = Router()
@@ -25,14 +29,27 @@ router.patch(
 router.patch(
   '/changeUserRole',
   verifyToken,
-  async (req: Request, res: Response) => {},
+  async (req: Request, res: Response) => {
+    try {
+      await changeUserRole(
+        (req as any).userId,
+        req.body.userId,
+        req.body.newRole,
+      )
+      return res.send('UserRole changed')
+    } catch (error) {
+      return res.status(400).send(error)
+    }
+  },
 )
 
-router.get(
-  '/getAllUsers',
-  verifyToken,
-  async (req: Request, res: Response) => {},
-)
+router.get('/getAllUsers', verifyToken, async (req: Request, res: Response) => {
+  try {
+    return res.send(await getAllUsers((req as any).userId))
+  } catch (error) {
+    return res.status(400).send(error)
+  }
+})
 
 router.get(
   '/seartchUser',
