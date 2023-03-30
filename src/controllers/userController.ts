@@ -1,5 +1,4 @@
 import { Request, Response, Router } from "express";
-import { PrismaClient, User } from "@prisma/client";
 import {
   ForgotPasswordDto,
   RegisterDto,
@@ -14,7 +13,6 @@ import {
   resetPassword,
 } from "../services/userService";
 import verifyToken from "../middleware/verify";
-const prisma = new PrismaClient();
 const router = Router();
 
 router.get("/get-user-info", async (req: Request, res: Response) => {});
