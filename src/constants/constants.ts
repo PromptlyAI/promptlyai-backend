@@ -3,3 +3,4 @@ const constants = {
 }
 
 export default constants;
+//'Help me clarify and improve the following prompt to better represent its intended purpose and make it easier for AI models like GPT or DELLE to understand and provide accurate responses. Original prompt: <provide original prompt here>. Please provide the optimized prompt as the response.'

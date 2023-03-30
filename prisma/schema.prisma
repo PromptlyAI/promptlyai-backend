@@ -16,6 +16,7 @@ model User {
     email        String   @unique
     name         String
     passwordhash String
+    totalTokenBalance Int @default(10000)
     role String @default("user")
     createdAt DateTime @default(now())
     resetToken String?
