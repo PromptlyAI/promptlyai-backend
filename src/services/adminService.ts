@@ -22,7 +22,7 @@ export async function changeTokenBalance(
 export async function changeUserRole(
   adminId: UUID,
   userId: UUID,
-  newRole: string
+  newRole: Role
 ) {
   await verifyAdmin(adminId);
   await prisma.user.update({
@@ -30,23 +30,12 @@ export async function changeUserRole(
       id: userId,
     },
     data: {
-      role: translateRoleToEnum(newRole),
+      role: newRole,
     },
   });
 }
 
-function translateRoleToEnum(newRole: string) {
-  switch (newRole) {
-    case "user":
-      return Role.USER;
-    case "premiumuser":
-      return Role.PREMIUMUSER;
-    case "admin":
-      return Role.ADMIN;
-    default:
-      throw new Error("Invalid role!");
-  }
-}
+
 
 export async function getAllUsers(adminId: UUID) {
   await verifyAdmin(adminId);

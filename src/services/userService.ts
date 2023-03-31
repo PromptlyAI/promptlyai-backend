@@ -6,12 +6,14 @@ import dotenv from "dotenv";
 import { randomUUID } from "crypto";
 import sendResetPasswordEmail from "../services/mailService";
 import MailDto from "../interfaces/MailDto";
+import e from "express";
 
 dotenv.config();
 const tokenSecret = process.env.TOKEN_SECRET;
 const prisma = new PrismaClient();
 
 export async function register(user: RegisterDto) {
+  checkBanList(user.name, user.email);
   const passhash = Bcrypt.hashSync(user.password, 10);
   await prisma.user.create({
     data: {
@@ -130,4 +132,17 @@ async function createResetToken() {
   }
 
   return token;
+}
+
+async function checkBanList(name: string, email: string) {
+  const data = await prisma.bannedUsers.findMany({
+    where: {
+      name: name,
+      email: email,
+    },
+  });
+
+  if (data !== null) {
+    throw new Error("User is banned");
+  }
 }
