@@ -80,7 +80,7 @@ export async function searchUsers(adminId: UUID, search: string) {
       role: user.role,
       totalTokenBalance: user.totalTokenBalance,
       isBanned: user.isBanned,
-      banExpirationDate: user.bannExpirationDate
+      banExpirationDate: user.banExpirationDate
     };
   });
   
