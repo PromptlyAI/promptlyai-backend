@@ -17,7 +17,7 @@ model User {
     name         String
     passwordhash String
     totalTokenBalance Int @default(10000)
-    role String @default("user")
+    role Role @default(USER)
     createdAt DateTime @default(now())
     resetToken String?
     resetTokenExpirationDate DateTime?
@@ -42,4 +42,11 @@ model PromptAnswer {
     modell    String
     output    String
     tokenCost String
+}
+
+
+enum Role {
+  USER
+  PREMIUMUSER
+  ADMIN
 }

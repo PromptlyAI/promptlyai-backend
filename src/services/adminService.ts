@@ -1,14 +1,14 @@
-import { PrismaClient } from '@prisma/client'
-import { UUID } from 'crypto'
+import { PrismaClient, Role } from "@prisma/client";
+import { UUID } from "crypto";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function changeTokenBalance(
   adminId: UUID,
   userId: UUID,
-  newTokenBalance: number,
+  newTokenBalance: number
 ) {
-  await verifyAdmin(adminId)
+  await verifyAdmin(adminId);
   await prisma.user.update({
     where: {
       id: userId,
@@ -16,39 +16,69 @@ export async function changeTokenBalance(
     data: {
       totalTokenBalance: newTokenBalance,
     },
-  })
+  });
 }
 
 export async function changeUserRole(
   adminId: UUID,
   userId: UUID,
-  newRole: string,
+  newRole: string
 ) {
-  await verifyAdmin(adminId)
+  await verifyAdmin(adminId);
   await prisma.user.update({
     where: {
       id: userId,
     },
     data: {
-      role: newRole,
+      role: translateRoleToEnum(newRole),
     },
-  })
+  });
+}
+
+function translateRoleToEnum(newRole: string) {
+  switch (newRole) {
+    case "user":
+      return Role.USER;
+    case "premiumuser":
+      return Role.PREMIUMUSER;
+    case "admin":
+      return Role.ADMIN;
+    default:
+      throw new Error("Invalid role!");
+  }
 }
 
 export async function getAllUsers(adminId: UUID) {
-  await verifyAdmin(adminId)
-  const data = await prisma.user.findMany()
+  await verifyAdmin(adminId);
+  const data = await prisma.user.findMany();
   const returnValue = data.map((data) => {
-    data.id, data.name, data.email, data.role, data.totalTokenBalance
-  })
+    data.id, data.name, data.email, data.role, data.totalTokenBalance;
+  });
+
+  return returnValue;
+}
+
+export async function searchUsers(adminId: UUID, search: string) {
+  await verifyAdmin(adminId);
+  const data = await prisma.user.findMany({
+    where: {
+      email: search,
+      name: search,
+      id: search,
+    },
+  });
+
+  const returnValue = data.map((data) => {
+    data.id, data.name, data.email, data.role, data.totalTokenBalance;
+  });
 
   return returnValue;
 }
 
 async function verifyAdmin(adminId: UUID) {
-  const admin = await prisma.user.findFirst(adminId)
+  const admin = await prisma.user.findFirst(adminId);
 
-  if (!admin || admin.role !== 'admin') {
-    throw new Error('Invalid admin')
+  if (!admin || admin.role !== Role.ADMIN) {
+    throw new Error("Invalid admin");
   }
 }
