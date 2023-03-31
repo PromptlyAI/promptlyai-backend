@@ -102,7 +102,7 @@ export async function banUser(adminId: UUID, ban: BanDto) {
     },
     data: {
       isBanned: true,
-      bannExpirationDate: ban.banExpartionDate,
+      banExpirationDate: ban.banExpartionDate,
     },
   });
 

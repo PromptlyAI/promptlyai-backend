@@ -22,7 +22,7 @@ model User {
   resetToken               String?
   resetTokenExpirationDate DateTime?
   isBanned Boolean  @default(false)
-  bannExpirationDate DateTime?
+  banExpirationDate DateTime?
   prompts                  Prompt[]
 }
 
