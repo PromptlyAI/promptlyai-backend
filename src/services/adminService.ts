@@ -57,7 +57,7 @@ export async function searchUsers(adminId: UUID, search: string) {
   });
 
   const returnValue = data.map((data) => {
-    data.id, data.name, data.email, data.role, data.totalTokenBalance;
+    data.id, data.name, data.email, data.role, data.totalTokenBalance, data.isBanned, data.bannExpirationDate;
   });
 
   return returnValue;
@@ -86,8 +86,12 @@ export async function banUser(adminId: UUID, ban: BanDto) {
 }
 
 
+
+
 async function verifyAdmin(adminId: UUID) {
-  const admin = await prisma.user.findFirst(adminId);
+  const admin = await prisma.user.findFirst({where:{
+    id : adminId
+  }});
 
   if (!admin || admin.role !== Role.ADMIN) {
     throw new Error("Invalid admin");

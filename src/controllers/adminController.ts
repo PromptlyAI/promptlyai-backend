@@ -1,6 +1,7 @@
 import verifyToken from "../middleware/verify";
 import { Request, Response, Router } from "express";
 import {
+  banUser,
   changeTokenBalance,
   changeUserRole,
   getAllUsers,
@@ -60,10 +61,12 @@ router.get("/searchUsers", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
-router.patch(
-  "/banUser",
-  verifyToken,
-  async (req: Request, res: Response) => {}
-);
+router.patch("/banUser", verifyToken, async (req: Request, res: Response) => {
+  try {
+    return res.send(await banUser((req as any).userId, req.body.ban));
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+});
 
 export default router;
