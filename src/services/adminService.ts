@@ -40,8 +40,15 @@ export async function getAllUsers(adminId: UUID) {
   await verifyAdmin(adminId);
   const data = await prisma.user.findMany();
   const returnValue = data.map((data) => {
-    data.id, data.name, data.email, data.role, data.totalTokenBalance;
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      totalTokenBalance: data.totalTokenBalance,
+    };
   });
+  
 
   return returnValue;
 }
@@ -50,27 +57,44 @@ export async function searchUsers(adminId: UUID, search: string) {
   await verifyAdmin(adminId);
   const data = await prisma.user.findMany({
     where: {
-      email: search,
-      name: search,
-      id: search,
+      OR: [
+        {
+          email: search,
+        },
+        {
+          name: search,
+        },
+        {
+          id: search,
+        },
+      ],
     },
   });
+  
 
-  const returnValue = data.map((data) => {
-    data.id, data.name, data.email, data.role, data.totalTokenBalance, data.isBanned, data.bannExpirationDate;
+  const returnValue = data.map((user) => {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      totalTokenBalance: user.totalTokenBalance,
+      isBanned: user.isBanned,
+      banExpirationDate: user.bannExpirationDate
+    };
   });
+  
 
+    
   return returnValue;
 }
 
 export async function banUser(adminId: UUID, ban: BanDto) {
   await verifyAdmin(adminId);
   await prisma.bannedUsers.create({
-    data: {
-      name: ban.name,
-      email: ban.email,
-    },
+    data: ban,
   });
+  
 
   await prisma.user.update({
     where: {
