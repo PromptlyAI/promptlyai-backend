@@ -32,7 +32,7 @@ export async function login(user: UserDto) {
   });
 
   if (data === null) {
-    throw new Error("Illa");
+    throw new Error("user not found");
   } else {
     const validPassword = await Bcrypt.compare(
       user.password,
@@ -50,7 +50,7 @@ export async function login(user: UserDto) {
       }
     );
 
-    return token;
+    return {token : token};
   }
 }
 
@@ -89,14 +89,14 @@ export async function resetPassword(resetToken: string, newPassword: string) {
   });
 
   if (!user || !user.resetTokenExpirationDate) {
-    throw new Error("Illa");
+    throw new Error("invalid user");
   }
 
   const now = new Date();
   const expirationDate = new Date(user.resetTokenExpirationDate);
 
   if (now > expirationDate) {
-    throw new Error("Illa");
+    throw new Error("token expired");
   }
 
   await prisma.user.update({
