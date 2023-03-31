@@ -6,12 +6,14 @@ import dotenv from "dotenv";
 import { randomUUID } from "crypto";
 import sendResetPasswordEmail from "../services/mailService";
 import MailDto from "../interfaces/MailDto";
+import e from "express";
 
 dotenv.config();
 const tokenSecret = process.env.TOKEN_SECRET;
 const prisma = new PrismaClient();
 
 export async function register(user: RegisterDto) {
+  checkBanList(user.name, user.email);
   const passhash = Bcrypt.hashSync(user.password, 10);
   await prisma.user.create({
     data: {
@@ -30,7 +32,7 @@ export async function login(user: UserDto) {
   });
 
   if (data === null) {
-    throw new Error("Illa");
+    throw new Error("user not found");
   } else {
     const validPassword = await Bcrypt.compare(
       user.password,
@@ -48,7 +50,7 @@ export async function login(user: UserDto) {
       }
     );
 
-    return token;
+    return {token : token};
   }
 }
 
@@ -87,14 +89,14 @@ export async function resetPassword(resetToken: string, newPassword: string) {
   });
 
   if (!user || !user.resetTokenExpirationDate) {
-    throw new Error("Illa");
+    throw new Error("invalid user");
   }
 
   const now = new Date();
   const expirationDate = new Date(user.resetTokenExpirationDate);
 
   if (now > expirationDate) {
-    throw new Error("Illa");
+    throw new Error("token expired");
   }
 
   await prisma.user.update({
@@ -130,4 +132,17 @@ async function createResetToken() {
   }
 
   return token;
+}
+
+async function checkBanList(name: string, email: string) {
+  const data = await prisma.bannedUsers.findMany({
+    where: {
+      name: name,
+      email: email,
+    },
+  });
+
+  if (data !== null) {
+    throw new Error("User is banned");
+  }
 }
