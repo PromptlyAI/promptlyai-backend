@@ -48,8 +48,8 @@ model PromptAnswer {
 
 model BannedUsers {
   id        String @id @default(uuid())
-  email                    String @unique
-  name                     String @unique
+  email                    String? @unique
+  name                     String? @unique
 }
 
 enum Role {
