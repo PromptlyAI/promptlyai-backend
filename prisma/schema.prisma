@@ -32,9 +32,9 @@ model Prompt {
   userId    String
   model     String
   input     String
-  output    String
+  output    String @db.LongText()
   tokenCost String
-  profile   PromptAnswer?
+  promptAnswer   PromptAnswer?
 }
 
 model PromptAnswer {
@@ -42,7 +42,7 @@ model PromptAnswer {
   prompt    Prompt @relation(fields: [promptId], references: [id])
   promptId  String @unique @default(uuid())
   modell    String
-  output    String
+  output    String @db.LongText()
   tokenCost String
 }
 
