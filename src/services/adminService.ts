@@ -58,10 +58,14 @@ export async function searchUsers(adminId: UUID, search: string) {
     where: {
       OR: [
         {
-          email: search,
+          email: {
+            contains: search,
+          },
         },
         {
-          name: search,
+          name: {
+            contains: search,
+          },
         },
         {
           id: search,
@@ -69,6 +73,7 @@ export async function searchUsers(adminId: UUID, search: string) {
       ],
     },
   });
+  
 
   const returnValue = data.map((user) => {
     return {
