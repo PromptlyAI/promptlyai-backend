@@ -7,6 +7,7 @@ import { randomUUID } from "crypto";
 import sendResetPasswordEmail from "../services/mailService";
 import MailDto from "../interfaces/MailDto";
 import e from "express";
+import { cwd } from "process";
 
 dotenv.config();
 const tokenSecret = process.env.TOKEN_SECRET;
@@ -42,7 +43,7 @@ export async function login(user: UserDto) {
 
     const token = jwt.sign(
       {
-        _id: data.id,
+        id: data.id,
       },
       tokenSecret || "",
       {
@@ -142,7 +143,7 @@ async function checkBanList(name: string, email: string) {
     },
   });
 
-  if (data !== null) {
+  if (data.length > 0) {
     throw new Error("User is banned");
   }
 }
