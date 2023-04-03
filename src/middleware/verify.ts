@@ -15,6 +15,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
           console.log(err)
           res.status(401).send('Not logged-in');
         } else {
+          console.log(decodedToken);
           (req as any).userId = decodedToken.id; // Add to req object
           next();
         }
