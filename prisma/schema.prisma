@@ -13,43 +13,43 @@ model User {
   email                    String    @unique
   name                     String
   passwordhash             String
+  totalTokenBalance        Int       @default(10000)
+  role                     Role      @default(USER)
   createdAt                DateTime  @default(now())
   resetToken               String?
   resetTokenExpirationDate DateTime?
-  role                     User_role @default(USER)
-  totalTokenBalance        Int       @default(10000)
-  isBanned                 Boolean   @default(false)
-  banExpirationDate        DateTime?
+  isBanned Boolean  @default(false)
+  banExpirationDate DateTime?
   prompts                  Prompt[]
 }
 
 model Prompt {
   id        String        @id @default(uuid())
+  user      User          @relation(fields: [userId], references: [id])
   userId    String
   model     String
   input     String
-  output    String        @db.LongText
+  output    String @db.LongText()
   tokenCost String
-  user      User          @relation(fields: [userId], references: [id])
-  profile   PromptAnswer?
+  promptAnswer   PromptAnswer?
 }
 
 model PromptAnswer {
   id        String @id @default(uuid())
+  prompt    Prompt @relation(fields: [promptId], references: [id])
   promptId  String @unique @default(uuid())
   modell    String
-  output    String @db.LongText
+  output    String @db.LongText()
   tokenCost String
-  prompt    Prompt @relation(fields: [promptId], references: [id])
 }
 
 model BannedUsers {
-  id    String  @id
-  email String? @unique
-  name  String? @unique
+  id        String @id @default(uuid())
+  email                    String? @unique
+  name                     String? @unique
 }
 
-enum User_role {
+enum Role {
   USER
   PREMIUMUSER
   ADMIN
