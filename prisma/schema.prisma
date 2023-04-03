@@ -1,45 +1,56 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
 model User {
-    id           String   @id @default(uuid())
-    email        String   @unique
-    name         String
-    passwordhash String
-    totalTokenBalance Int @default(10000)
-    role String @default("user")
-    createdAt DateTime @default(now())
-    resetToken String?
-    resetTokenExpirationDate DateTime?
-    prompts      Prompt[]
+  id                       String    @id @default(uuid())
+  email                    String    @unique
+  name                     String
+  passwordhash             String
+  createdAt                DateTime  @default(now())
+  resetToken               String?
+  resetTokenExpirationDate DateTime?
+  role                     User_role @default(USER)
+  totalTokenBalance        Int       @default(10000)
+  isBanned                 Boolean   @default(false)
+  banExpirationDate        DateTime?
+  prompts                  Prompt[]
 }
 
 model Prompt {
-    id        String        @id @default(uuid())
-    user      User          @relation(fields: [userId], references: [id])
-    userId    String
-    model     String
-    input     String
-    output    String
-    tokenCost String
-    profile   PromptAnswer?
+  id        String        @id @default(uuid())
+  userId    String
+  model     String
+  input     String
+  output    String        @db.LongText
+  tokenCost String
+  user      User          @relation(fields: [userId], references: [id])
+  profile   PromptAnswer?
 }
 
 model PromptAnswer {
-    id        String @id @default(uuid())
-    prompt    Prompt @relation(fields: [promptId], references: [id])
-    promptId  String @unique @default(uuid())
-    modell    String
-    output    String
-    tokenCost String
+  id        String @id @default(uuid())
+  promptId  String @unique @default(uuid())
+  modell    String
+  output    String @db.LongText
+  tokenCost String
+  prompt    Prompt @relation(fields: [promptId], references: [id])
+}
+
+model BannedUsers {
+  id    String  @id
+  email String? @unique
+  name  String? @unique
+}
+
+enum User_role {
+  USER
+  PREMIUMUSER
+  ADMIN
 }
