@@ -89,7 +89,7 @@ export const getAllPrompts = async (userId: string) => {
             userId
         },
         include: {
-            profile: true
+            promptAnswer: true
         },
     })
 
