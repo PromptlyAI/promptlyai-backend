@@ -4,6 +4,7 @@ import userController from "./src/controllers/userController";
 import openAIController from "./src/controllers/openAIController";
 import { getImprovedPrompt } from "./src/services/openAIService";
 import adminController from "./src/controllers/adminController";
+import cors from "cors";
 
 dotenv.config();
 
@@ -11,6 +12,8 @@ const app: Express = express();
 const port = process.env.PORT;
 
 app.use(express.json());
+// use cors package
+app.use(cors());
 
 app.use("/user", userController);
 app.use("/admin", adminController);
