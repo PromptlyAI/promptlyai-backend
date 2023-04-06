@@ -4,8 +4,10 @@ import {
   getImprovedPrompt,
   getImprovedResult,
   getAllPrompts,
+  deletePrompt,
 } from "../services/openAIService";
 import checkBan from "../middleware/checkBan";
+import { UUID } from "crypto";
 
 const router = Router();
 
@@ -43,6 +45,16 @@ router.get(
   checkBan,
   async (req: Request, res: Response) => {
     const prompts = await getAllPrompts((req as any).userId);
+    return res.json(prompts);
+  }
+);
+
+router.delete(
+  "/",
+  verifyToken,
+  checkBan,
+  async (req: Request<{}, {}, UUID>, res: Response) => {
+    const prompts = await deletePrompt((req as any).user, req.body);
     return res.json(prompts);
   }
 );
