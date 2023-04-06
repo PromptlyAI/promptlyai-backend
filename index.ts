@@ -17,7 +17,7 @@ app.use(cors());
 
 app.use("/user", userController);
 app.use("/admin", adminController);
-app.use("/openAI", openAIController);
+app.use("/prompt", openAIController);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Slaktar Server");
