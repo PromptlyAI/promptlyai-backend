@@ -1,15 +1,18 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient, Role, User } from "@prisma/client";
 import { UUID } from "crypto";
 import BanDto from "../interfaces/BanDto";
 
 const prisma = new PrismaClient();
 
 export async function changeTokenBalance(
-  adminId: UUID,
+  adminUser: User,
   userId: UUID,
   newTokenBalance: number
 ) {
-  await verifyAdmin(adminId);
+  if (adminUser.role !== "ADMIN") {
+    throw new Error("Not admin");
+  }
+
   await prisma.user.update({
     where: {
       id: userId,
@@ -21,11 +24,13 @@ export async function changeTokenBalance(
 }
 
 export async function changeUserRole(
-  adminId: UUID,
+  adminUser: User,
   userId: UUID,
   newRole: Role
 ) {
-  await verifyAdmin(adminId);
+  if (adminUser.role !== "ADMIN") {
+    throw new Error("Not admin");
+  }
   await prisma.user.update({
     where: {
       id: userId,
@@ -36,8 +41,10 @@ export async function changeUserRole(
   });
 }
 
-export async function getAllUsers(adminId: UUID) {
-  await verifyAdmin(adminId);
+export async function getAllUsers(adminUser: User) {
+  if (adminUser.role !== "ADMIN") {
+    throw new Error("Not admin");
+  }
   const data = await prisma.user.findMany();
   const returnValue = data.map((data) => {
     return {
@@ -52,8 +59,10 @@ export async function getAllUsers(adminId: UUID) {
   return returnValue;
 }
 
-export async function searchUsers(adminId: UUID, search: string) {
-  await verifyAdmin(adminId);
+export async function searchUsers(adminUser: User, search: string) {
+  if (adminUser.role !== "ADMIN") {
+    throw new Error("Not admin");
+  }
   const data = await prisma.user.findMany({
     where: {
       OR: [
@@ -73,7 +82,6 @@ export async function searchUsers(adminId: UUID, search: string) {
       ],
     },
   });
-  
 
   const returnValue = data.map((user) => {
     return {
@@ -90,17 +98,17 @@ export async function searchUsers(adminId: UUID, search: string) {
   return returnValue;
 }
 
-export async function banUser(adminId: UUID, ban: BanDto) {
-  await verifyAdmin(adminId);
+export async function banUser(adminUser: User, ban: BanDto) {
+  if (adminUser.role !== "ADMIN") {
+    throw new Error("Not admin");
+  }
   console.log(ban);
 
-  
   const existingUser = await prisma.user.findUnique({
-    where:{
-      id:ban.userId
-    }
+    where: {
+      id: ban.userId,
+    },
   });
-  
 
   if (existingUser?.isBanned || !existingUser) {
     throw new Error("User is already banned or does not exist");
@@ -108,7 +116,7 @@ export async function banUser(adminId: UUID, ban: BanDto) {
 
   await prisma.bannedUsers.create({
     data: {
-      email: existingUser?.email
+      email: existingUser?.email,
     },
   });
 
@@ -118,24 +126,13 @@ export async function banUser(adminId: UUID, ban: BanDto) {
     },
     data: {
       isBanned: true,
-      banExpirationDate: ban.banExpartionDate ? new Date(ban.banExpartionDate) : undefined,
+      banExpirationDate: ban.banExpartionDate
+        ? new Date(ban.banExpartionDate)
+        : undefined,
     },
   });
 
   //send email to user
 
   return "User banned";
-}
-
-
-async function verifyAdmin(adminId: UUID) {
-  const admin = await prisma.user.findFirst({
-    where: {
-      id: adminId,
-    },
-  });
-
-  if (!admin || admin.role !== Role.ADMIN) {
-    throw new Error("Invalid admin");
-  }
 }

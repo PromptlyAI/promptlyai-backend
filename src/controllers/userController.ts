@@ -41,7 +41,7 @@ router.post("/login", async (req: Request<{}, {}, UserDto>, res: Response) => {
 
 router.delete("/", verifyToken, async (req: Request, res: Response) => {
   try {
-    await deleteUser((req as any).userId);
+    await deleteUser((req as any).user);
     return res.send("User deleted");
   } catch (error) {
     return res.status(400).send(error);

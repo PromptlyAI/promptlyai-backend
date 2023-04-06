@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import Bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { RegisterDto, UserDto } from "../interfaces/UserDtos";
 import dotenv from "dotenv";
 import { randomUUID } from "crypto";
@@ -55,10 +55,10 @@ export async function login(user: UserDto) {
   }
 }
 
-export async function deleteUser(userId: string) {
+export async function deleteUser(user: User) {
   const data = await prisma.user.delete({
     where: {
-      id: userId,
+      id: user.id,
     },
   });
 }

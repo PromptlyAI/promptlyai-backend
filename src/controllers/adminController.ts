@@ -17,7 +17,7 @@ router.patch(
   async (req: Request, res: Response) => {
     try {
       await changeTokenBalance(
-        (req as any).userId,
+        (req as any).user,
         req.body.userId,
         req.body.balance
       );
@@ -34,7 +34,7 @@ router.patch(
   async (req: Request, res: Response) => {
     try {
       await changeUserRole(
-        (req as any).userId,
+        (req as any).user,
         req.body.userId,
         req.body.newRole
       );
@@ -47,7 +47,7 @@ router.patch(
 
 router.get("/getAllUsers", verifyToken, async (req: Request, res: Response) => {
   try {
-    return res.send(await getAllUsers((req as any).userId));
+    return res.send(await getAllUsers((req as any).user));
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -55,7 +55,7 @@ router.get("/getAllUsers", verifyToken, async (req: Request, res: Response) => {
 
 router.get("/searchUsers", verifyToken, async (req: Request, res: Response) => {
   try {
-    return res.send(await searchUsers((req as any).userId, req.body.search));
+    return res.send(await searchUsers((req as any).user, req.body.search));
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -63,7 +63,7 @@ router.get("/searchUsers", verifyToken, async (req: Request, res: Response) => {
 
 router.patch("/banUser", verifyToken, async (req: Request, res: Response) => {
   try {
-    return res.json(await banUser((req as any).userId, req.body.ban));
+    return res.json(await banUser((req as any).user, req.body.ban));
   } catch (error) {
     console.log(error)
     return res.status(400).send(error);
