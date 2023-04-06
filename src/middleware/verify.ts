@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
-import { UUID } from "crypto";
-import { unescape } from "querystring";
 
 const prisma = new PrismaClient();
 
