@@ -3,4 +3,4 @@ const constants = {
 }
 
 export default constants;
-//'Help me clarify and improve the following prompt to better represent its intended purpose and make it easier for AI models like GPT or DELLE to understand and provide accurate responses. Original prompt: <provide original prompt here>. Please provide the optimized prompt as the response.'
+//Help me clarify and improve the following prompt to better represent its intended purpose and make it easier for AI models like GPT or DELLE to understand and provide accurate responses. The main goal is to ensure that the prompts provided to the AI models are clear, concise, and effectively communicate the user's intent. Improve the my initial prompt by adding relevant information, enhancing clarity, and tailoring it specifically for the intended AI model. Ensure the prompt is precise and effectively communicates my intent. Carefully read and understand the following prompt, paying close attention to the key elements and the intended AI model they want to use. Ad information if needed. Please provide ONLY the optimized prompt as the response, nothing else! Prompt to optimize: <prompt>'
