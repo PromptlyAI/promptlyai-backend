@@ -8,15 +8,18 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const userController_1 = __importDefault(require("./src/controllers/userController"));
 const openAIController_1 = __importDefault(require("./src/controllers/openAIController"));
 const adminController_1 = __importDefault(require("./src/controllers/adminController"));
+const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT;
 app.use(express_1.default.json());
+// use cors package
+app.use((0, cors_1.default)());
 app.use("/user", userController_1.default);
 app.use("/admin", adminController_1.default);
-app.use("/openAI", openAIController_1.default);
+app.use("/prompt", openAIController_1.default);
 app.get("/", (req, res) => {
-    res.send("Slaktar Server");
+    res.send("PromptlyLabs api");
 });
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
