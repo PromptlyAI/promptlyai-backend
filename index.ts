@@ -20,7 +20,7 @@ app.use("/admin", adminController);
 app.use("/prompt", openAIController);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Slaktar Server");
+  res.send("PromptlyLabs api");
 });
 
 app.listen(port, () => {

@@ -44,6 +44,7 @@ router.get(
   verifyToken,
   checkBan,
   async (req: Request, res: Response) => {
+    console.log("getAllPrompts");
     const prompts = await getAllPrompts((req as any).userId);
     return res.json(prompts);
   }
