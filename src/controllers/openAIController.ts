@@ -5,7 +5,7 @@ import {
   getImprovedResult,
   getAllPrompts,
   deletePrompt,
-} from "../services/openAIService";
+} from "../services/promptController";
 import checkBan from "../middleware/checkBan";
 import { UUID } from "crypto";
 
@@ -17,7 +17,7 @@ router.get(
   checkBan,
   async (req: Request, res: Response) => {
     const prompt = req.query.prompt as string;
-    const improvedPrompt = await getImprovedPrompt(prompt, (req as any).userId);
+    const improvedPrompt = await getImprovedPrompt(prompt, (req as any).user);
     return res.json(improvedPrompt);
   }
 );
@@ -45,7 +45,7 @@ router.get(
   checkBan,
   async (req: Request, res: Response) => {
     console.log("getAllPrompts");
-    const prompts = await getAllPrompts((req as any).userId);
+    const prompts = await getAllPrompts((req as any).user);
     return res.json(prompts);
   }
 );

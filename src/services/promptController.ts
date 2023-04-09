@@ -27,7 +27,7 @@ const calculateTokenCost = (
   return num_tokens;
 };
 
-export const getImprovedPrompt = async (prompt: string, userId: string) => {
+export const getImprovedPrompt = async (prompt: string, user: User) => {
   const formattedPrompt = `${constants.basePrompt}${prompt}`;
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
@@ -40,9 +40,9 @@ export const getImprovedPrompt = async (prompt: string, userId: string) => {
   });
   const tokenCost = calculateTokenCost(response.data.choices);
 
-  const user = await prisma.user.findFirst({ where: { id: userId } });
+  const foundUser = await prisma.user.findFirst({ where: { id: user.id  } });
 
-  if (user) {
+  if (foundUser) {
     await prisma.user.update({
       where: { id: user.id },
       data: { totalTokenBalance: { decrement: tokenCost } },
@@ -62,15 +62,18 @@ export const getImprovedPrompt = async (prompt: string, userId: string) => {
 
 export const getImprovedResult = async (
   prompt: string,
-  userId: string,
+  user: User,
   promptId: string
 ) => {
   const promptRecord = await prisma.prompt.findUnique({
-    where: { id: promptId },
+    where: {
+      id: promptId
+    },
   });
 
   if (!promptRecord) throw new Error("Prompt not found");
-
+  if(promptRecord.userId === user.id) throw new Error("Unauthorized user");
+  
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
@@ -119,10 +122,10 @@ export const deletePrompt = async (user: User, promptId: string) => {
     },
   });
 };
-export const getAllPrompts = async (userId: string) => {
+export const getAllPrompts = async (user: User) => {
   const prompts = await prisma.prompt.findMany({
     where: {
-      userId,
+      userId: user.id,
     },
     include: {
       promptAnswer: true,

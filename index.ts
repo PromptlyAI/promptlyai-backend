@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import userController from "./src/controllers/userController";
 import openAIController from "./src/controllers/openAIController";
-import { getImprovedPrompt } from "./src/services/openAIService";
+import { getImprovedPrompt } from "./src/services/promptController";
 import adminController from "./src/controllers/adminController";
 import cors from "cors";
 
