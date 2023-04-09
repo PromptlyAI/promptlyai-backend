@@ -78,7 +78,7 @@ export const getImprovedResult = async (
     model: "gpt-3.5-turbo",
     messages: [
       {
-        content: "Answer the prompt: "+prompt,
+        content: "Answer the prompt in its intended language: "+prompt,
         role: "user",
       },
     ],
