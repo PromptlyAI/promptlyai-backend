@@ -1,6 +1,5 @@
 const constants = {
-    basePrompt: "transform this prompt into a prompt that would better represent what I am trying to do and that you would be easier for you to understand. Prompt to transform: "
+    basePrompt: "Help me clarify and improve the following prompt to better represent its intended purpose and make it easier for AI models like GPT or DELLE to understand and provide accurate responses. What to do with the prompt: 1. Decide intended ai model (image or text generator) 2. Add relevant information if needed 3. Enhance clarity 4. Improve IMPORTANT: Please provide ONLY the optimized prompt as the response, nothing else! YOU decide the intended ai model type! Prompt to transform: "
 }
 
 export default constants;
-//Help me clarify and improve the following prompt to better represent its intended purpose and make it easier for AI models like GPT or DELLE to understand and provide accurate responses. The main goal is to ensure that the prompts provided to the AI models are clear, concise, and effectively communicate the user's intent. Improve the my initial prompt by adding relevant information, enhancing clarity, and tailoring it specifically for the intended AI model. Ensure the prompt is precise and effectively communicates my intent. Carefully read and understand the following prompt, paying close attention to the key elements and the intended AI model they want to use. Ad information if needed. Please provide ONLY the optimized prompt as the response, nothing else! Prompt to optimize: <prompt>'
