@@ -1,9 +1,9 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import userController from "./src/controllers/userController";
-import openAIController from "./src/controllers/openAIController";
-import { getImprovedPrompt } from "./src/services/promptController";
+import { getImprovedPrompt } from "./src/services/promptService";
 import adminController from "./src/controllers/adminController";
+import promptController from "./src/controllers/promptController";
 import cors from "cors";
 
 dotenv.config();
@@ -17,7 +17,7 @@ app.use(cors());
 
 app.use("/user", userController);
 app.use("/admin", adminController);
-app.use("/prompt", openAIController);
+app.use("/prompt", promptController);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("PromptlyLabs api");

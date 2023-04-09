@@ -5,7 +5,7 @@ import {
   getImprovedResult,
   getAllPrompts,
   deletePrompt,
-} from "../services/promptController";
+} from "../services/promptService";
 import checkBan from "../middleware/checkBan";
 import { UUID } from "crypto";
 
