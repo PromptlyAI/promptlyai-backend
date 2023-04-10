@@ -27,7 +27,7 @@ const calculateTokenCost = (
   return num_tokens;
 };
 
-export const getImprovedPrompt = async (prompt: string, user: User) => {
+export const getImprovedPrompt = async (prompt: string, user: User,  ) => {
   const formattedPrompt = `${constants.basePrompt}${prompt}`;
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
@@ -38,13 +38,9 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
       },
     ],
   });
-
-  console.log(response);
   const tokenCost = calculateTokenCost(response.data.choices);
 
-  const foundUser = await prisma.user.findFirst({ where: { id: user.id  } });
-
-  if (foundUser) {
+  if (user) {
     await prisma.user.update({
       where: { id: user.id },
       data: { totalTokenBalance: { decrement: tokenCost } },
@@ -68,19 +64,16 @@ export const getImprovedResult = async (
   promptId: string
 ) => {
   const promptRecord = await prisma.prompt.findUnique({
-    where: {
-      id: promptId
-    },
+    where: { id: promptId },
   });
 
   if (!promptRecord) throw new Error("Prompt not found");
-  if(promptRecord.userId === user.id) throw new Error("Unauthorized user");
-  
+
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
       {
-        content: "Answer the prompt in its intended language: "+prompt,
+        content: prompt,
         role: "user",
       },
     ],
