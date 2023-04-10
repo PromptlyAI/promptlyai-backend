@@ -55,7 +55,11 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
 
 function cleanPrompt(originalOutput: string) {
   const promptSplit: string[] = originalOutput.split(":");
-  return promptSplit[promptSplit.length - 1];
+  let output = promptSplit[promptSplit.length - 1];
+  if(output[0] === ' '){
+    output.slice(1);
+  }
+  return output;
 }
 
 async function fetchImprovedPrompt(prompt: string) {
