@@ -27,9 +27,41 @@ const calculateTokenCost = (
   return num_tokens;
 };
 
-export const getImprovedPrompt = async (prompt: string, user: User,  ) => {
+export const getImprovedPrompt = async (prompt: string, user: User) => {
+  const response = await fetchImprovedPrompt(prompt);
+  const tokenCost = calculateTokenCost(response.data.choices);
+  if(user.totalTokenBalance < tokenCost) {throw new Error("Not enough token balance!");}
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { totalTokenBalance: { decrement: tokenCost } },
+  });
+
+  const output = cleanPrompt(response.data.choices[0].message?.content || "");
+
+  const newPrompt = await prisma.prompt.create({
+    data: {
+      input: prompt,
+      output: output,
+      model: "gpt-3.5-turbo",
+      tokenCost: `${tokenCost}`,
+      userId: user.id,
+    },
+  });
+
+
+  return { response: response.data.choices, prompt: newPrompt };
+};
+
+function cleanPrompt(originalOutput : any) {
+  const promptSplit : string[] = originalOutput.split(':');
+
+  return promptSplit[promptSplit.length - 1];
+}
+
+async function fetchImprovedPrompt(prompt: string) {
   const formattedPrompt = `${basePrompt}${prompt}`;
-  const response = await openai.createChatCompletion({
+  return await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
       {
@@ -38,25 +70,7 @@ export const getImprovedPrompt = async (prompt: string, user: User,  ) => {
       },
     ],
   });
-  const tokenCost = calculateTokenCost(response.data.choices);
-
-  if (user) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { totalTokenBalance: { decrement: tokenCost } },
-    });
-    const newPrompt = await prisma.prompt.create({
-      data: {
-        input: prompt,
-        output: response.data.choices[0].message?.content || "",
-        model: "gpt-3.5-turbo",
-        tokenCost: `${tokenCost}`,
-        userId: user.id,
-      },
-    });
-    return { response: response.data.choices, prompt: newPrompt };
-  }
-};
+}
 
 export const getImprovedResult = async (
   prompt: string,
