@@ -7,7 +7,7 @@ import { PrismaClient, Prompt, User } from "@prisma/client";
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const basePrompt = process.env.OPENAI_API_KEY;
+const basePrompt = process.env.BASE_PROMPT;
 
 const prisma = new PrismaClient({ log: ["query", "error"] });
 
@@ -53,9 +53,8 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
   return { response: response.data.choices, prompt: newPrompt };
 };
 
-function cleanPrompt(originalOutput : any) {
+function cleanPrompt(originalOutput : string) {
   const promptSplit : string[] = originalOutput.split(':');
-
   return promptSplit[promptSplit.length - 1];
 }
 
