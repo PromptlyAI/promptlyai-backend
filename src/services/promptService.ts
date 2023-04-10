@@ -30,7 +30,8 @@ const calculateTokenCost = (
 export const getImprovedPrompt = async (prompt: string, user: User) => {
   const response = await fetchImprovedPrompt(prompt);
   const tokenCost = calculateTokenCost(response.data.choices);
-  if(user.totalTokenBalance < tokenCost) {throw new Error("Not enough token balance!");}
+  if (user.totalTokenBalance < tokenCost)
+    throw new Error("Not enough token balance!");
 
   await prisma.user.update({
     where: { id: user.id },
@@ -49,12 +50,11 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
     },
   });
 
-
   return { response: response.data.choices, prompt: newPrompt };
 };
 
-function cleanPrompt(originalOutput : string) {
-  const promptSplit : string[] = originalOutput.split(':');
+function cleanPrompt(originalOutput: string) {
+  const promptSplit: string[] = originalOutput.split(":");
   return promptSplit[promptSplit.length - 1];
 }
 
@@ -81,6 +81,7 @@ export const getImprovedResult = async (
   });
 
   if (!promptRecord) throw new Error("Prompt not found");
+  if (user.id !== promptRecord.userId) throw new Error("Not correct user!");
 
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
@@ -91,22 +92,20 @@ export const getImprovedResult = async (
       },
     ],
   });
+  const tokenCost = calculateTokenCost(response.data.choices);
+  if (user.totalTokenBalance < tokenCost)
+    throw new Error("Not enough token balance!");
 
-  try {
-    const promptAnswer = await prisma.promptAnswer.create({
-      data: {
-        modell: "gpt-3.5-turbo",
-        output: response.data.choices[0].message?.content || "",
-        tokenCost: `${calculateTokenCost(response.data.choices)}`,
-        promptId: promptId,
-      },
-    });
+  const promptAnswer = await prisma.promptAnswer.create({
+    data: {
+      modell: "gpt-3.5-turbo",
+      output: response.data.choices[0].message?.content || "",
+      tokenCost: `${tokenCost}`,
+      promptId: promptId,
+    },
+  });
 
-    return { response: response.data.choices[0].message, promptAnswer };
-  } catch (error) {
-    console.log(error);
-    throw new Error(error as string);
-  }
+  return { response: response.data.choices[0].message, promptAnswer };
 };
 
 export const deletePrompt = async (user: User, promptId: string) => {
