@@ -4,10 +4,10 @@ import {
   OpenAIApi,
 } from "openai";
 import { PrismaClient, Prompt, User } from "@prisma/client";
-import constants from "../constants/constants";
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
+const basePrompt = process.env.BASE_PROMPT;
 
 const prisma = new PrismaClient({ log: ["query", "error"] });
 
@@ -27,9 +27,40 @@ const calculateTokenCost = (
   return num_tokens;
 };
 
-export const getImprovedPrompt = async (prompt: string, user: User,  ) => {
-  const formattedPrompt = `${constants.basePrompt}${prompt}`;
-  const response = await openai.createChatCompletion({
+export const getImprovedPrompt = async (prompt: string, user: User) => {
+  const response = await fetchImprovedPrompt(prompt);
+  const tokenCost = calculateTokenCost(response.data.choices);
+  if (user.totalTokenBalance < tokenCost)
+    throw new Error("Not enough token balance!");
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { totalTokenBalance: { decrement: tokenCost } },
+  });
+
+  const output = cleanPrompt(response.data.choices[0].message?.content || "");
+
+  const newPrompt = await prisma.prompt.create({
+    data: {
+      input: prompt,
+      output: output,
+      model: "gpt-3.5-turbo",
+      tokenCost: `${tokenCost}`,
+      userId: user.id,
+    },
+  });
+
+  return { response: response.data.choices, prompt: newPrompt };
+};
+
+function cleanPrompt(originalOutput: string) {
+  const promptSplit: string[] = originalOutput.split(":");
+  return promptSplit[promptSplit.length - 1];
+}
+
+async function fetchImprovedPrompt(prompt: string) {
+  const formattedPrompt = `${basePrompt}${prompt}`;
+  return await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
       {
@@ -38,25 +69,7 @@ export const getImprovedPrompt = async (prompt: string, user: User,  ) => {
       },
     ],
   });
-  const tokenCost = calculateTokenCost(response.data.choices);
-
-  if (user) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { totalTokenBalance: { decrement: tokenCost } },
-    });
-    const newPrompt = await prisma.prompt.create({
-      data: {
-        input: prompt,
-        output: response.data.choices[0].message?.content || "",
-        model: "gpt-3.5-turbo",
-        tokenCost: `${tokenCost}`,
-        userId: user.id,
-      },
-    });
-    return { response: response.data.choices, prompt: newPrompt };
-  }
-};
+}
 
 export const getImprovedResult = async (
   prompt: string,
@@ -68,6 +81,7 @@ export const getImprovedResult = async (
   });
 
   if (!promptRecord) throw new Error("Prompt not found");
+  if (user.id !== promptRecord.userId) throw new Error("Not correct user!");
 
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
@@ -78,22 +92,20 @@ export const getImprovedResult = async (
       },
     ],
   });
+  const tokenCost = calculateTokenCost(response.data.choices);
+  if (user.totalTokenBalance < tokenCost)
+    throw new Error("Not enough token balance!");
 
-  try {
-    const promptAnswer = await prisma.promptAnswer.create({
-      data: {
-        modell: "gpt-3.5-turbo",
-        output: response.data.choices[0].message?.content || "",
-        tokenCost: `${calculateTokenCost(response.data.choices)}`,
-        promptId: promptId,
-      },
-    });
+  const promptAnswer = await prisma.promptAnswer.create({
+    data: {
+      modell: "gpt-3.5-turbo",
+      output: response.data.choices[0].message?.content || "",
+      tokenCost: `${tokenCost}`,
+      promptId: promptId,
+    },
+  });
 
-    return { response: response.data.choices[0].message, promptAnswer };
-  } catch (error) {
-    console.log(error);
-    throw new Error(error as string);
-  }
+  return { response: response.data.choices[0].message, promptAnswer };
 };
 
 export const deletePrompt = async (user: User, promptId: string) => {
