@@ -4,10 +4,10 @@ import {
   OpenAIApi,
 } from "openai";
 import { PrismaClient, Prompt, User } from "@prisma/client";
-import constants from "../constants/constants";
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
+const basePrompt = process.env.OPENAI_API_KEY;
 
 const prisma = new PrismaClient({ log: ["query", "error"] });
 
@@ -28,7 +28,7 @@ const calculateTokenCost = (
 };
 
 export const getImprovedPrompt = async (prompt: string, user: User,  ) => {
-  const formattedPrompt = `${constants.basePrompt}${prompt}`;
+  const formattedPrompt = `${basePrompt}${prompt}`;
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
