@@ -38,6 +38,8 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
       },
     ],
   });
+
+  console.log(response);
   const tokenCost = calculateTokenCost(response.data.choices);
 
   const foundUser = await prisma.user.findFirst({ where: { id: user.id  } });
