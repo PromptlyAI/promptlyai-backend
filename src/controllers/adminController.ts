@@ -54,8 +54,8 @@ router.get("/getAllUsers", verifyToken, async (req: Request, res: Response) => {
 });
 
 router.get("/searchUsers", verifyToken, async (req: Request, res: Response) => {
-  try {
-    return res.send(await searchUsers((req as any).user, req.body.search));
+  try {      
+    return res.send(await searchUsers((req as any).user, req.query.search as string));
   } catch (error) {
     return res.status(400).send(error);
   }
