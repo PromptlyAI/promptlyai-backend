@@ -56,7 +56,7 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
 function cleanPrompt(originalOutput: string) {
   const promptSplit: string[] = originalOutput.split(":");
   let output = promptSplit[promptSplit.length - 1];
-  if(output[0] === ' '){
+  if (output[0] === " ") {
     output.slice(1);
   }
   return output;
@@ -143,5 +143,25 @@ export const getAllPrompts = async (user: User) => {
     },
   });
 
-  return prompts;
+  return prompts.map((prompt) => {
+    return {
+      id: prompt.id,
+      input: prompt.input,
+    };
+  });
+};
+
+export const getPromptInfo = async (user: User, promptId: string) => {
+  const prompt = await prisma.prompt.findFirst({
+    where: {
+      id: promptId,
+    },
+    include: {
+      promptAnswer: true,
+    },
+  });
+
+  if (!prompt || prompt?.userId !== user.id) throw new Error("Wrong prompt id");
+
+  return prompt;
 };

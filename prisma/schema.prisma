@@ -31,7 +31,7 @@ model Prompt {
   input     String
   output    String @db.LongText()
   tokenCost String
-  promptAnswer   PromptAnswer?
+  promptAnswer   PromptAnswer[]
 }
 
 model PromptAnswer {
