@@ -48,13 +48,16 @@ router.get(
   }
 );
 
-router.get("get-prompt-info"),
+router.get("/get-prompt-info"),
   verifyToken,
   checkBan,
   async (req: Request, res: Response) => {
     try {
       console.log("getAllPrompts");
-      const prompt = await getPromptInfo((req as any).user,req.query.promptId as string);
+      const prompt = await getPromptInfo(
+        (req as any).user,
+        req.query.promptId as string
+      );
       return res.json(prompt);
     } catch (error) {
       return res.status(400).send(error);
