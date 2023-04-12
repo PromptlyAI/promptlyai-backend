@@ -48,7 +48,8 @@ router.get(
   }
 );
 
-router.get("/get-prompt-info"),
+router.get(
+  "/get-prompt-info",
   verifyToken,
   checkBan,
   async (req: Request, res: Response) => {
@@ -62,7 +63,9 @@ router.get("/get-prompt-info"),
     } catch (error) {
       return res.status(400).send(error);
     }
-  };
+  }
+);
+
 
 router.get(
   "/prompts",
