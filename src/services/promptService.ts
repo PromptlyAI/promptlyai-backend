@@ -162,13 +162,15 @@ export const getPromptInfo = async (user: User, promptId: string) => {
           output: true,
           tokenCost: true,
         },
-        take: 1,
       },
     },
   });
 
   if (!prompt || prompt.userId !== user.id) throw new Error("Wrong prompt id");
 
-  return prompt;
+  return {
+    input: prompt.input,
+    output: prompt.output,
+    answer: prompt.promptAnswer[0].output,
+  };
 };
-
