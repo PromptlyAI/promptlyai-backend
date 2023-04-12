@@ -79,6 +79,7 @@ export async function forgotPassword(email: string): Promise<string> {
     to: email,
     body: token,
   });
+  throw new Error("Not implemented");
   return token;
 }
 
@@ -110,6 +111,7 @@ export async function resetPassword(resetToken: string, newPassword: string) {
       resetTokenExpirationDate: null,
     },
   });
+  throw new Error("Not implemented");
 }
 
 async function createResetToken() {
