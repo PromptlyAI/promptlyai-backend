@@ -74,7 +74,7 @@ router.patch("/banUser", verifyToken, async (req: Request, res: Response) => {
 
 
 router.patch(
-  "/",
+  "/user",
   verifyToken,
   async (req: Request, res: Response) => {
     try {
