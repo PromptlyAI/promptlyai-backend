@@ -27,7 +27,6 @@ export interface PatchUserDto {
   name?: string
   totalTokenBalance?: number
   role?: Role
-  isBanned?: boolean
   banExpirationDate?: Date
 }
 
