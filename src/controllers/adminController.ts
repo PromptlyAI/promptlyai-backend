@@ -5,9 +5,11 @@ import {
   changeTokenBalance,
   changeUserRole,
   getAllUsers,
+  patchUser,
   searchUsers,
 } from "../services/adminService";
 import { UUID } from "crypto";
+import { PatchUserDto } from "../interfaces/UserDtos";
 
 const router = Router();
 
@@ -69,5 +71,20 @@ router.patch("/banUser", verifyToken, async (req: Request, res: Response) => {
     return res.status(400).send(error);
   }
 });
+
+
+router.patch(
+  "/",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      const patchUserDto: PatchUserDto = req.body;
+      await patchUser((req as any).user, patchUserDto);
+      return res.send("User successfully updated");
+    } catch (error) {
+      return res.status(400).send(error);
+    }
+  }
+);
 
 export default router;

@@ -1,6 +1,7 @@
 import { PrismaClient, Role, User } from "@prisma/client";
 import { UUID } from "crypto";
 import BanDto from "../interfaces/BanDto";
+import { PatchUserDto } from "../interfaces/UserDtos";
 
 const prisma = new PrismaClient();
 
@@ -136,3 +137,20 @@ export async function banUser(adminUser: User, ban: BanDto) {
 
   return "User banned";
 }
+
+
+export async function patchUser(adminUser: User, patchUser: PatchUserDto) {
+  if (adminUser.role !== "ADMIN") {
+    throw new Error("Not admin");
+  }
+
+  const { id, ...updateData } = patchUser;
+
+  await prisma.user.update({
+    where: {
+      id: id,
+    },
+    data: updateData,
+  });
+}
+
