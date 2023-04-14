@@ -15,6 +15,7 @@ const prisma = new PrismaClient();
 
 export async function register(user: RegisterDto) {
   checkBanList(user.name, user.email);
+  checkEmailAdress(user.email);
   const passhash = Bcrypt.hashSync(user.password, 10);
   await prisma.user.create({
     data: {
@@ -24,6 +25,14 @@ export async function register(user: RegisterDto) {
     },
   });
 }
+
+function checkEmailAdress(email: string) {
+  const emailRegex = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}(\.[a-zA-Z]{2,6}){0,1})$/;
+  if (!emailRegex.test(email)) {
+    throw new Error("Not correct email");
+  }
+}
+
 
 export async function login(user: UserDto) {
   const data = await prisma.user.findUnique({
