@@ -124,12 +124,16 @@ export const deletePrompt = async (user: User, promptId: string) => {
     throw new Error("Not correct user");
   }
 
+  // Delete related PromptAnswer records before deleting the Prompt
+  await prisma.promptAnswer.deleteMany({
+    where: {
+      promptId: promptToDelete.id,
+    },
+  });
+
   await prisma.prompt.delete({
     where: {
       id: promptToDelete.id,
-    },
-    include: {
-      promptAnswer: true,
     },
   });
 };
