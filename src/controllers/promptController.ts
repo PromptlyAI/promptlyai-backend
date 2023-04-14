@@ -6,6 +6,7 @@ import {
   getAllPrompts,
   deletePrompt,
   getPromptInfo,
+  deleteAllMyPrompts,
 } from "../services/promptService";
 import checkBan from "../middleware/checkBan";
 import { UUID } from "crypto";
@@ -94,5 +95,20 @@ router.delete(
     }
   }
 );
+
+router.delete(
+  "/all",
+  verifyToken,
+  checkBan,
+  async (req: Request, res: Response) => {
+    try {
+      await deleteAllMyPrompts((req as any).user);
+      return res.json({ message: "All prompts and their answers deleted successfully." });
+    } catch (error) {
+      return res.status(400).send(error);
+    }
+  }
+);
+
 
 export default router;

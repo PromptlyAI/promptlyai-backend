@@ -138,6 +138,25 @@ export const deletePrompt = async (user: User, promptId: string) => {
   });
 };
 
+export const deleteAllMyPrompts = async (user: User) => {
+  // First, delete all related PromptAnswer records
+  await prisma.promptAnswer.deleteMany({
+    where: {
+      prompt: {
+        userId: user.id,
+      },
+    },
+  });
+
+  // Then, delete all the Prompt records for the user
+  await prisma.prompt.deleteMany({
+    where: {
+      userId: user.id,
+    },
+  });
+};
+
+
 export const getAllPrompts = async (user: User) => {
   const prompts = await prisma.prompt.findMany({
     where: {
