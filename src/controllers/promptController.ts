@@ -86,8 +86,8 @@ router.delete(
   "/",
   verifyToken,
   checkBan,
-  async (req: Request<{}, {}, UUID>, res: Response) => {
-    const prompts = await deletePrompt((req as any).user, req.body);
+  async (req: Request, res: Response) => {
+    const prompts = await deletePrompt((req as any).user, req.body.promptId);
     return res.json(prompts);
   }
 );
