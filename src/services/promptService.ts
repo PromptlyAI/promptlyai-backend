@@ -128,6 +128,9 @@ export const deletePrompt = async (user: User, promptId: string) => {
     where: {
       id: promptToDelete.id,
     },
+    include: {
+      promptAnswer: true,
+    },
   });
 };
 export const getAllPrompts = async (user: User) => {
