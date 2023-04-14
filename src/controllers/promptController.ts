@@ -66,7 +66,6 @@ router.get(
   }
 );
 
-
 router.get(
   "/prompts",
   verifyToken,
@@ -87,8 +86,12 @@ router.delete(
   verifyToken,
   checkBan,
   async (req: Request, res: Response) => {
-    const prompts = await deletePrompt((req as any).user, req.body.promptId);
-    return res.json(prompts);
+    try {
+      const prompts = await deletePrompt((req as any).user, req.body.promptId);
+      return res.json(prompts);
+    } catch (error) {
+      return res.status(400).send(error);
+    }
   }
 );
 
