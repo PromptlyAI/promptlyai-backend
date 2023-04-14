@@ -65,7 +65,7 @@ router.get("/searchUsers", verifyToken, async (req: Request, res: Response) => {
 
 router.patch("/banUser", verifyToken, async (req: Request, res: Response) => {
   try {
-    return res.json(await banUser((req as any).user, req.body.ban));
+    return res.json(await banUser((req as any).user, req.body));
   } catch (error) {
     console.log(error)
     return res.status(400).send(error);
