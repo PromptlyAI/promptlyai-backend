@@ -103,7 +103,6 @@ export async function banUser(adminUser: User, ban: BanDto) {
   if (adminUser.role !== "ADMIN") {
     throw new Error("Not admin");
   }
-  console.log(ban);
 
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -137,6 +136,43 @@ export async function banUser(adminUser: User, ban: BanDto) {
 
   return "User banned";
 }
+
+async function unbanUser(adminUser: User, userId: UUID) {
+  if (adminUser.role !== "ADMIN") {
+    throw new Error("Not admin");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user?.isBanned || !user) {
+    throw new Error("User is not banned or does not exist");
+  }
+
+  await prisma.bannedUsers.delete({
+    where:{
+      email:user.email
+    }
+  });
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      isBanned: false,
+      banExpirationDate: null,
+    },
+  });
+
+  //send email to user
+
+  return "User unbanned";
+}
+
 
 
 export async function patchUser(adminUser: User, patchUser: PatchUserDto) {

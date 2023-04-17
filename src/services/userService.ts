@@ -158,3 +158,5 @@ async function checkBanList(name: string, email: string) {
     throw new Error("User is banned");
   }
 }
+
+
