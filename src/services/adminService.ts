@@ -137,7 +137,7 @@ export async function banUser(adminUser: User, ban: BanDto) {
   return "User banned";
 }
 
-async function unbanUser(adminUser: User, userId: UUID) {
+export async function unbanUser(adminUser: User, userId: UUID) {
   if (adminUser.role !== "ADMIN") {
     throw new Error("Not admin");
   }

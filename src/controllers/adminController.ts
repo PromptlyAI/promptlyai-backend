@@ -7,6 +7,7 @@ import {
   getAllUsers,
   patchUser,
   searchUsers,
+  unbanUser,
 } from "../services/adminService";
 import { UUID } from "crypto";
 import { PatchUserDto } from "../interfaces/UserDtos";
@@ -66,6 +67,15 @@ router.get("/searchUsers", verifyToken, async (req: Request, res: Response) => {
 router.patch("/banUser", verifyToken, async (req: Request, res: Response) => {
   try {
     return res.json(await banUser((req as any).user, req.body));
+  } catch (error) {
+    console.log(error)
+    return res.status(400).send(error);
+  }
+});
+
+router.patch("/unbanUser", verifyToken, async (req: Request, res: Response) => {
+  try {
+    return res.json(await unbanUser((req as any).user, req.body.userId));
   } catch (error) {
     console.log(error)
     return res.status(400).send(error);
