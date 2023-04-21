@@ -181,23 +181,15 @@ export const getPromptInfo = async (user: User, promptId: string) => {
       id: promptId,
     },
     include: {
-      promptAnswer: {
-        select: {
-          id: true,
-          promptId: true,
-          modell: true,
-          output: true,
-          tokenCost: true,
-        },
-      },
+      promptAnswer: true,
     },
   });
 
   if (!prompt || prompt.userId !== user.id) throw new Error("Wrong prompt id");
 
   return {
-    input: prompt.input,
-    output: prompt.output,
-    answer: prompt.promptAnswer[0].output,
+    input: prompt.input || "",
+    output: prompt.output || "",
+    answer: prompt.promptAnswer[0].output || "",
   };
 };
