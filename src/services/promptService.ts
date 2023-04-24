@@ -166,7 +166,6 @@ export const getImprovedImage = async (
   const image_url = response.data.data[0].url;
 
   const tokenCost = calculateTokenCostForImage(response.data);
-  console.log(tokenCost)
   if (user.totalTokenBalance < tokenCost)
     throw new Error("Not enough token balance!");
 
@@ -174,7 +173,7 @@ export const getImprovedImage = async (
     data: {
       modell: "gpt-3.5-turbo",
       output: image_url || "",
-      tokenCost: "100",
+      tokenCost: tokenCost.toString(),
       promptId: promptId,
     },
   });
