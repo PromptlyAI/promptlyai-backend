@@ -25,6 +25,7 @@ router.get(
         name: user.name,
         email: user.email,
         totalTokenBalance: user.totalTokenBalance,
+        totalImageBalance: user.totalImageBalance,
         role: user.role,
         createdAt: user.createdAt,
         isBanned: user.isBanned,
