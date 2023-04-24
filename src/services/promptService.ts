@@ -28,12 +28,6 @@ const calculateTokenCost = (
 };
 
 
-const calculateTokenCostForImage = (response: ImagesResponse) => {
-  const tokensPerRequest = 4;
-  const numRequests = response.data.length;
-  return tokensPerRequest * numRequests;
-};
-
 
 
 export const getImprovedPrompt = async (prompt: string, user: User) => {
@@ -164,8 +158,8 @@ export const getImprovedImage = async (
     size: "1024x1024",
   });
   const image_url = response.data.data[0].url;
-
-  const tokenCost = calculateTokenCostForImage(response.data);
+  console.log(response)
+  const tokenCost = 0;
   if (user.totalTokenBalance < tokenCost)
     throw new Error("Not enough token balance!");
 
