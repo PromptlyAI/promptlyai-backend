@@ -1,6 +1,7 @@
 import {
   Configuration,
   CreateChatCompletionResponseChoicesInner,
+  ImagesResponse,
   OpenAIApi,
 } from "openai";
 import { PrismaClient, Prompt, User } from "@prisma/client";
@@ -10,7 +11,6 @@ const configuration = new Configuration({
 const BasePrompt = process.env.BASE_PROMPT;
 const BaseImagePrompt = process.env.BASE_IMAGE_PROMPT
 const prisma = new PrismaClient({ log: ["query", "error"] });
-
 const openai = new OpenAIApi(configuration);
 
 const calculateTokenCost = (
@@ -26,6 +26,15 @@ const calculateTokenCost = (
 
   return num_tokens;
 };
+
+
+const calculateTokenCostForImage = (response: ImagesResponse) => {
+  const tokensPerRequest = 4;
+  const numRequests = response.data.length;
+  return tokensPerRequest * numRequests;
+};
+
+
 
 export const getImprovedPrompt = async (prompt: string, user: User) => {
   const response = await fetchImprovedPrompt(prompt, BasePrompt || "");
@@ -156,9 +165,10 @@ export const getImprovedImage = async (
   });
   const image_url = response.data.data[0].url;
 
-  // const tokenCost = calculateTokenCost(response.data.choices);
-  // if (user.totalTokenBalance < tokenCost)
-  //   throw new Error("Not enough token balance!");
+  const tokenCost = calculateTokenCostForImage(response.data);
+  console.log(tokenCost)
+  if (user.totalTokenBalance < tokenCost)
+    throw new Error("Not enough token balance!");
 
   const promptAnswer = await prisma.promptAnswer.create({
     data: {
@@ -200,6 +210,8 @@ export const deletePrompt = async (user: User, promptId: string) => {
     },
   });
 };
+
+
 
 export const deleteAllMyPrompts = async (user: User) => {
   // First, delete all related PromptAnswer records
