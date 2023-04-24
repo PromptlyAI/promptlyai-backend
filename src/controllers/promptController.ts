@@ -7,6 +7,8 @@ import {
   deletePrompt,
   getPromptInfo,
   deleteAllMyPrompts,
+  getImprovedImagePrompt,
+  getImprovedImage,
 } from "../services/promptService";
 import checkBan from "../middleware/checkBan";
 import { UUID } from "crypto";
@@ -29,6 +31,21 @@ router.get(
 );
 
 router.get(
+  "/get-improved-image-prompt",
+  verifyToken,
+  checkBan,
+  async (req: Request, res: Response) => {
+    try {
+      const prompt = req.query.prompt as string;
+      const improvedPrompt = await getImprovedImagePrompt(prompt, (req as any).user);
+      return res.json(improvedPrompt);
+    } catch (error) {
+      return res.status(400).send(error);
+    }
+  }
+);
+
+router.get(
   "/get-improved-answer",
   verifyToken,
   checkBan,
@@ -38,6 +55,27 @@ router.get(
       const promptId = req.query.promptId as string;
 
       const improvedResult = await getImprovedResult(
+        prompt,
+        (req as any).user,
+        promptId
+      );
+      return res.json(improvedResult);
+    } catch (error) {
+      return res.status(400).send(error);
+    }
+  }
+);
+
+router.get(
+  "/get-improved-image",
+  verifyToken,
+  checkBan,
+  async (req: Request, res: Response) => {
+    try {
+      const prompt = req.query.prompt as string;
+      const promptId = req.query.promptId as string;
+
+      const improvedResult = await getImprovedImage(
         prompt,
         (req as any).user,
         promptId

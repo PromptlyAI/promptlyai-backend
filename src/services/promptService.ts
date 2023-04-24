@@ -8,7 +8,7 @@ const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const BasePrompt = process.env.BASE_PROMPT;
-
+const BaseImagePrompt = process.env.BASE_IMAGE_PROMPT
 const prisma = new PrismaClient({ log: ["query", "error"] });
 
 const openai = new OpenAIApi(configuration);
@@ -54,8 +54,7 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
 };
 
 export const getImprovedImagePrompt = async (prompt: string, user: User) => {
-  //TODO: change base prompt
-  const response = await fetchImprovedPrompt(prompt, BasePrompt || "");
+  const response = await fetchImprovedPrompt(prompt, BaseImagePrompt || "");
   const tokenCost = calculateTokenCost(response.data.choices);
   if (user.totalTokenBalance < tokenCost)
     throw new Error("Not enough token balance!");
