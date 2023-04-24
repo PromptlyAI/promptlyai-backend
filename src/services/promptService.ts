@@ -9,7 +9,7 @@ const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const BasePrompt = process.env.BASE_PROMPT;
-const BaseImagePrompt = process.env.BASE_IMAGE_PROMPT
+const BaseImagePrompt = process.env.BASE_IMAGE_PROMPT;
 const prisma = new PrismaClient({ log: ["query", "error"] });
 const openai = new OpenAIApi(configuration);
 
@@ -26,9 +26,6 @@ const calculateTokenCost = (
 
   return num_tokens;
 };
-
-
-
 
 export const getImprovedPrompt = async (prompt: string, user: User) => {
   const response = await fetchImprovedPrompt(prompt, BasePrompt || "");
@@ -73,7 +70,7 @@ export const getImprovedImagePrompt = async (prompt: string, user: User) => {
     data: {
       input: prompt,
       output: output,
-      model: "dalle",
+      model: "gpt-3.5-turbo",
       tokenCost: `${tokenCost}`,
       userId: user.id,
     },
@@ -82,15 +79,13 @@ export const getImprovedImagePrompt = async (prompt: string, user: User) => {
   return { response: response.data.choices, prompt: newPrompt };
 };
 
-
-
 function cleanPrompt(originalOutput: string) {
   const promptSplit: string[] = originalOutput.split('"');
   let output = promptSplit[1];
   return output;
 }
 
-async function fetchImprovedPrompt(prompt: string, basePrompt:string) {
+async function fetchImprovedPrompt(prompt: string, basePrompt: string) {
   const formattedPrompt = `${basePrompt}${prompt}`;
   return await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
@@ -128,6 +123,11 @@ export const getImprovedResult = async (
   if (user.totalTokenBalance < tokenCost)
     throw new Error("Not enough token balance!");
 
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { totalTokenBalance: { decrement: tokenCost } },
+  });
+
   const promptAnswer = await prisma.promptAnswer.create({
     data: {
       modell: "gpt-3.5-turbo",
@@ -158,21 +158,23 @@ export const getImprovedImage = async (
     size: "1024x1024",
   });
   const image_url = response.data.data[0].url;
-  console.log(response)
-  const tokenCost = 0;
-  if (user.totalTokenBalance < tokenCost)
-    throw new Error("Not enough token balance!");
+  const tokenCost = 1;
+  if (user.totalImageBalance < tokenCost) throw new Error("Not enough token balance!");
 
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { totalImageBalance: { decrement: tokenCost } },
+  });
   const promptAnswer = await prisma.promptAnswer.create({
     data: {
-      modell: "gpt-3.5-turbo",
+      modell: "dalle",
       output: image_url || "",
-      tokenCost: tokenCost.toString(),
+      tokenCost: `${tokenCost}`,
       promptId: promptId,
     },
   });
 
-  return {image_url, promptAnswer};
+  return { image_url, promptAnswer };
 };
 
 export const deletePrompt = async (user: User, promptId: string) => {
@@ -203,8 +205,6 @@ export const deletePrompt = async (user: User, promptId: string) => {
     },
   });
 };
-
-
 
 export const deleteAllMyPrompts = async (user: User) => {
   // First, delete all related PromptAnswer records

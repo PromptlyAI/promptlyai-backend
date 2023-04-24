@@ -14,6 +14,7 @@ model User {
   name                     String
   passwordhash             String
   totalTokenBalance        Int       @default(10000)
+  totalImageBalance Int @default(15)
   role                     Role      @default(USER)
   createdAt                DateTime  @default(now())
   resetToken               String?
