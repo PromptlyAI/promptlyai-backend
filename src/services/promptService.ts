@@ -7,7 +7,7 @@ import { PrismaClient, Prompt, User } from "@prisma/client";
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const basePrompt = process.env.BASE_PROMPT;
+const BasePrompt = process.env.BASE_PROMPT;
 
 const prisma = new PrismaClient({ log: ["query", "error"] });
 
@@ -28,7 +28,7 @@ const calculateTokenCost = (
 };
 
 export const getImprovedPrompt = async (prompt: string, user: User) => {
-  const response = await fetchImprovedPrompt(prompt);
+  const response = await fetchImprovedPrompt(prompt, BasePrompt || "");
   const tokenCost = calculateTokenCost(response.data.choices);
   if (user.totalTokenBalance < tokenCost)
     throw new Error("Not enough token balance!");
@@ -53,13 +53,42 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
   return { response: response.data.choices, prompt: newPrompt };
 };
 
+export const getImprovedImagePrompt = async (prompt: string, user: User) => {
+  //TODO: change base prompt
+  const response = await fetchImprovedPrompt(prompt, BasePrompt || "");
+  const tokenCost = calculateTokenCost(response.data.choices);
+  if (user.totalTokenBalance < tokenCost)
+    throw new Error("Not enough token balance!");
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { totalTokenBalance: { decrement: tokenCost } },
+  });
+
+  const output = cleanPrompt(response.data.choices[0].message?.content || "");
+
+  const newPrompt = await prisma.prompt.create({
+    data: {
+      input: prompt,
+      output: output,
+      model: "dalle",
+      tokenCost: `${tokenCost}`,
+      userId: user.id,
+    },
+  });
+
+  return { response: response.data.choices, prompt: newPrompt };
+};
+
+
+
 function cleanPrompt(originalOutput: string) {
   const promptSplit: string[] = originalOutput.split('"');
   let output = promptSplit[1];
   return output;
 }
 
-async function fetchImprovedPrompt(prompt: string) {
+async function fetchImprovedPrompt(prompt: string, basePrompt:string) {
   const formattedPrompt = `${basePrompt}${prompt}`;
   return await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
@@ -109,6 +138,41 @@ export const getImprovedResult = async (
   return { response: response.data.choices[0].message, promptAnswer };
 };
 
+export const getImprovedImage = async (
+  prompt: string,
+  user: User,
+  promptId: string
+) => {
+  const promptRecord = await prisma.prompt.findUnique({
+    where: { id: promptId },
+  });
+
+  if (!promptRecord) throw new Error("Prompt not found");
+  if (user.id !== promptRecord.userId) throw new Error("Not correct user!");
+
+  const response = await openai.createImage({
+    prompt: prompt,
+    n: 1,
+    size: "1024x1024",
+  });
+  const image_url = response.data.data[0].url;
+
+  // const tokenCost = calculateTokenCost(response.data.choices);
+  // if (user.totalTokenBalance < tokenCost)
+  //   throw new Error("Not enough token balance!");
+
+  const promptAnswer = await prisma.promptAnswer.create({
+    data: {
+      modell: "gpt-3.5-turbo",
+      output: image_url || "",
+      tokenCost: "100",
+      promptId: promptId,
+    },
+  });
+
+  return {image_url, promptAnswer};
+};
+
 export const deletePrompt = async (user: User, promptId: string) => {
   const promptToDelete = await prisma.prompt.findUnique({
     where: {
@@ -155,7 +219,6 @@ export const deleteAllMyPrompts = async (user: User) => {
     },
   });
 };
-
 
 export const getAllPrompts = async (user: User) => {
   const prompts = await prisma.prompt.findMany({
