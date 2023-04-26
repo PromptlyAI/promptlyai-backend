@@ -29,7 +29,7 @@ model Prompt {
   user         User           @relation(fields: [userId], references: [id])
   userId       String
   model        String
-  type         Type
+  type         Type           @default(TEXT)
   input        String         @db.LongText()
   output       String         @db.LongText()
   tokenCost    String
