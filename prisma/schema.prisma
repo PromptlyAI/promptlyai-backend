@@ -29,11 +29,13 @@ model Prompt {
   user         User           @relation(fields: [userId], references: [id])
   userId       String
   model        String
-  type         Type           @default(TEXT)
+  type         Type
   input        String         @db.LongText()
   output       String         @db.LongText()
   tokenCost    String
   promptAnswer PromptAnswer[]
+
+  @@index([userId])
 }
 
 model PromptAnswer {
