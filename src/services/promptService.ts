@@ -281,6 +281,7 @@ export const getAllPrompts = async (user: User) => {
     return {
       id: prompt.id,
       input: prompt.input,
+      type: prompt.type,
     }
   })
 }
@@ -298,9 +299,9 @@ export const getPromptInfo = async (user: User, promptId: string) => {
   if (!prompt || prompt.userId !== user.id) throw new Error('Wrong prompt id')
 
   return {
-    input: prompt?.input || '',
-type: prompt?.type || '',
-    output: prompt?.output || '',
+    input: prompt.input,
+    type: prompt.type ,
+    output: prompt.output,
     answer: prompt.promptAnswer[0]?.output || '',
   }
 }
