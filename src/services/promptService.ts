@@ -299,6 +299,7 @@ export const getPromptInfo = async (user: User, promptId: string) => {
 
   return {
     input: prompt?.input || '',
+type: prompt?.type || '',
     output: prompt?.output || '',
     answer: prompt.promptAnswer[0]?.output || '',
   }
