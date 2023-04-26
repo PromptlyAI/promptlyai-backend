@@ -113,7 +113,7 @@ export const getImprovedImagePrompt = async (prompt: string, user: User) => {
       input: prompt,
       output: output,
       model: 'gpt-3.5-turbo',
-      type: Type.TEXT,
+      type: Type.IMAGE,
       tokenCost: `${tokenCost}`,
       userId: user.id,
     },
