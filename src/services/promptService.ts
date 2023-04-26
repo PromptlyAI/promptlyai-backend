@@ -3,7 +3,7 @@ import {
   CreateChatCompletionResponseChoicesInner,
   OpenAIApi,
 } from 'openai'
-import { PrismaClient, Prompt, User } from '@prisma/client'
+import { PrismaClient, Prompt, Type, User } from '@prisma/client'
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 })
@@ -113,6 +113,7 @@ export const getImprovedImagePrompt = async (prompt: string, user: User) => {
       input: prompt,
       output: output,
       model: 'gpt-3.5-turbo',
+      type: Type.TEXT,
       tokenCost: `${tokenCost}`,
       userId: user.id,
     },
