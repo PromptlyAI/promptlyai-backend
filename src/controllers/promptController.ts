@@ -25,7 +25,12 @@ router.get(
       const improvedPrompt = await getImprovedPrompt(prompt, (req as any).user);
       return res.json(improvedPrompt);
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
@@ -40,10 +45,17 @@ router.get(
       const improvedPrompt = await getImprovedImagePrompt(prompt, (req as any).user);
       return res.json(improvedPrompt);
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
+
+
 
 router.get(
   "/get-improved-answer",
@@ -61,7 +73,12 @@ router.get(
       );
       return res.json(improvedResult);
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
@@ -82,7 +99,12 @@ router.get(
       );
       return res.json(improvedResult);
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
@@ -100,8 +122,12 @@ router.get(
       );
       return res.json(prompt);
     } catch (error) {
-      console.log(error)
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
@@ -116,7 +142,12 @@ router.get(
       const prompts = await getAllPrompts((req as any).user);
       return res.json(prompts);
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );

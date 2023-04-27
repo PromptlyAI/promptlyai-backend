@@ -41,10 +41,12 @@ model Prompt {
 model PromptAnswer {
   id        String @id @default(uuid())
   prompt    Prompt @relation(fields: [promptId], references: [id])
-  promptId  String @unique @default(uuid())
+  promptId  String @default(uuid())
   modell    String
   output    String @db.LongText()
   tokenCost String
+
+  @@index([promptId])
 }
 
 model BannedUsers {
