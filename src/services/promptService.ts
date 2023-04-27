@@ -27,6 +27,11 @@ const calculateTokenCost = (
   return num_tokens
 }
 
+export const createNewPrompt = async (user: User) => {
+
+
+}
+
 export const getImprovedPrompt = async (prompt: string, user: User) => {
   const response = await fetchImprovedPrompt(`${BasePrompt}${prompt}`)
   const tokenCost = calculateTokenCost(response.data.choices)
