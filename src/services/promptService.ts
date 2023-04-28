@@ -83,9 +83,7 @@ export const enhanceText = async (
     data: { totalTokenBalance: { decrement: tokenCost } },
   })
   //Important to fix new baseprompt
-  const outputPrompt = cleanPrompt(
-    response.data.choices[0].message?.content || '',
-  )
+  const outputPrompt = cleanPrompt(response.data.choices[0].message?.content || 'No output found');
 
   await prisma.prompt.update({
     where: { id: promptId },
@@ -123,9 +121,14 @@ export const getImprovedImagePrompt = async (prompt: string, user: User) => {
 }
 
 function cleanPrompt(originalOutput: string) {
-  const promptSplit: string[] = originalOutput.split('"')
-  let output = promptSplit[1]
-  return output
+  const promptSplit: string[] = originalOutput.split('"');
+  let output = promptSplit[1];
+
+  if (!output) {
+    output = 'No output found'; // Set a default value when the extracted output is empty
+  }
+
+  return output;
 }
 
 async function fetchImprovedPrompt(formattedPrompt: string) {
@@ -139,6 +142,7 @@ async function fetchImprovedPrompt(formattedPrompt: string) {
     ],
   })
 }
+
 
 export const getImprovedResult = async (
   prompt: string,
@@ -282,6 +286,7 @@ export const getAllPrompts = async (user: User, type?: Type) => {
     return {
       id: prompt.id,
       input: prompt.input,
+      type: prompt.type,
     }
   })
 }
@@ -299,8 +304,9 @@ export const getPromptInfo = async (user: User, promptId: string) => {
   if (!prompt || prompt.userId !== user.id) throw new Error('Wrong prompt id')
 
   return {
-    input: prompt?.input || '',
-    output: prompt?.output || '',
+    input: prompt.input,
+    type: prompt.type ,
+    output: prompt.output,
     answer: prompt.promptAnswer[0]?.output || '',
   }
 }
