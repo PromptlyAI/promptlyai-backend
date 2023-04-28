@@ -28,12 +28,19 @@ const calculateTokenCost = (
 }
 
 export const createNewPrompt = async (user: User) => {
+  const newPrompt = await prisma.prompt.create({
+    data: {
+      model: 'gpt-3.5-turbo',
+      tokenCost: `0`,
+      userId: user.id,
+    },
+  });
 
-
+  return { prompt: newPrompt }
 }
 
-export const getImprovedPrompt = async (prompt: string, user: User) => {
-  const response = await fetchImprovedPrompt(`${BasePrompt}${prompt}`)
+export const getImprovedPrompt = async (input: string, promptId:string,  user: User) => {
+  const response = await fetchImprovedPrompt(`${BasePrompt}${input}`)
   const tokenCost = calculateTokenCost(response.data.choices)
   if (user.totalTokenBalance < tokenCost)
     throw new Error('Not enough token balance!')
@@ -44,10 +51,15 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
   })
 
   const output = cleanPrompt(response.data.choices[0].message?.content || '')
+  const prompt = await prisma.prompt.findFirst({where:{id:promptId}})
+  if(prompt?.userId !== user.id || !prompt){
+    throw new Error("Could not access prompt");
+  }
 
-  const newPrompt = await prisma.prompt.create({
+  const updatedPrompt = await prisma.prompt.update({
+    where: { id: promptId },
     data: {
-      input: prompt,
+      input,
       output: output,
       model: 'gpt-3.5-turbo',
       tokenCost: `${tokenCost}`,
@@ -55,7 +67,8 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
     },
   })
 
-  return { response: response.data.choices, prompt: newPrompt }
+
+  return { response: response.data.choices, prompt: updatedPrompt }
 }
 
 export const enhanceText = async (
@@ -65,6 +78,7 @@ export const enhanceText = async (
   user: User,
 ) => {
   //leave instructions empty if you don't want them
+  //TODO: fix for new prompt system
   const prompt = await prisma.prompt.findFirst({
     where: {
       id: promptId,
@@ -98,8 +112,8 @@ export const enhanceText = async (
   return { output : outputPrompt }
 }
 
-export const getImprovedImagePrompt = async (prompt: string, user: User) => {
-  const response = await fetchImprovedPrompt(`${BaseImagePrompt}${prompt}`)
+export const getImprovedImagePrompt = async (input: string,promptId:string, user: User) => {
+  const response = await fetchImprovedPrompt(`${BaseImagePrompt}${input}`)
   const tokenCost = calculateTokenCost(response.data.choices)
   if (user.totalTokenBalance < tokenCost)
     throw new Error('Not enough token balance!')
@@ -111,18 +125,23 @@ export const getImprovedImagePrompt = async (prompt: string, user: User) => {
 
   const output = cleanPrompt(response.data.choices[0].message?.content || '')
 
-  const newPrompt = await prisma.prompt.create({
+  const prompt = await prisma.prompt.findFirst({where:{id:promptId}})
+  if(prompt?.userId !== user.id || !prompt){
+    throw new Error("Could not access prompt");
+  }
+
+  const updatedPrompt = await prisma.prompt.update({
+    where: { id: promptId },
     data: {
-      input: prompt,
+      input,
       output: output,
       model: 'gpt-3.5-turbo',
-      type: Type.IMAGE,
       tokenCost: `${tokenCost}`,
       userId: user.id,
     },
   })
 
-  return { response: response.data.choices, prompt: newPrompt }
+  return { response: response.data.choices, prompt: updatedPrompt }
 }
 
 function cleanPrompt(originalOutput: string) {
