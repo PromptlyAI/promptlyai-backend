@@ -169,7 +169,8 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       console.log("getAllPrompts");
-      const prompts = await getAllPrompts((req as any).user);
+      const type = req.query.type as Type;
+      const prompts = await getAllPrompts((req as any).user, type);
       return res.json(prompts);
     } catch (error) {
       console.log(error);
