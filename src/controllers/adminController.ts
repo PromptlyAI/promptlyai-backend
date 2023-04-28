@@ -24,9 +24,14 @@ router.patch(
         req.body.userId,
         req.body.balance
       );
-      return res.send("Balance changed");
+      return res.json("Balance changed");
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
@@ -41,26 +46,41 @@ router.patch(
         req.body.userId,
         req.body.newRole
       );
-      return res.send("UserRole changed");
+      return res.json("UserRole changed");
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
 
 router.get("/getAllUsers", verifyToken, async (req: Request, res: Response) => {
   try {
-    return res.send(await getAllUsers((req as any).user));
+    return res.json(await getAllUsers((req as any).user));
   } catch (error) {
-    return res.status(400).send(error);
+    console.log(error);
+    if (error instanceof Error) {
+      return res.status(400).json({ error: error.message }); // Send the error message to the client
+    } else {
+      return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+    }
   }
 });
 
 router.get("/searchUsers", verifyToken, async (req: Request, res: Response) => {
   try {      
-    return res.send(await searchUsers((req as any).user, req.query.search as string));
+    return res.json(await searchUsers((req as any).user, req.query.search as string));
   } catch (error) {
-    return res.status(400).send(error);
+    console.log(error);
+    if (error instanceof Error) {
+      return res.status(400).json({ error: error.message }); // Send the error message to the client
+    } else {
+      return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+    }
   }
 });
 
@@ -68,8 +88,12 @@ router.patch("/banUser", verifyToken, async (req: Request, res: Response) => {
   try {
     return res.json(await banUser((req as any).user, req.body));
   } catch (error) {
-    console.log(error)
-    return res.status(400).send(error);
+    console.log(error);
+    if (error instanceof Error) {
+      return res.status(400).json({ error: error.message }); // Send the error message to the client
+    } else {
+      return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+    }
   }
 });
 
@@ -77,8 +101,12 @@ router.patch("/unbanUser", verifyToken, async (req: Request, res: Response) => {
   try {
     return res.json(await unbanUser((req as any).user, req.body.userId));
   } catch (error) {
-    console.log(error)
-    return res.status(400).send(error);
+    console.log(error);
+    if (error instanceof Error) {
+      return res.status(400).json({ error: error.message }); // Send the error message to the client
+    } else {
+      return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+    }
   }
 });
 
@@ -90,9 +118,14 @@ router.patch(
     try {
       const patchUserDto: PatchUserDto = req.body;
       await patchUser((req as any).user, patchUserDto);
-      return res.send("User successfully updated");
+      return res.json("User successfully updated");
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );

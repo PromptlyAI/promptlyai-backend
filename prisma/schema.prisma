@@ -30,21 +30,21 @@ model Prompt {
   userId       String
   model        String
   type         Type           @default(TEXT)
-  input        String         @db.LongText()
-  output       String         @db.LongText()
+  input        String?         @db.LongText()
+  output       String?         @db.LongText()
   tokenCost    String
   promptAnswer PromptAnswer[]
-
   @@index([userId])
 }
 
 model PromptAnswer {
   id        String @id @default(uuid())
   prompt    Prompt @relation(fields: [promptId], references: [id])
-  promptId  String @unique @default(uuid())
+  promptId  String @default(uuid())
   modell    String
   output    String @db.LongText()
   tokenCost String
+  @@index([promptId])
 }
 
 model BannedUsers {
