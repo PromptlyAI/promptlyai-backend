@@ -27,12 +27,13 @@ const calculateTokenCost = (
   return num_tokens
 }
 
-export const createNewPrompt = async (user: User) => {
+export const createNewPrompt = async (user: User, type:Type) => {
   const newPrompt = await prisma.prompt.create({
     data: {
       model: 'gpt-3.5-turbo',
       tokenCost: `0`,
       userId: user.id,
+      type
     },
   });
 

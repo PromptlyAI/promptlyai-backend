@@ -13,16 +13,18 @@ import {
 } from "../services/promptService";
 import checkBan from "../middleware/checkBan";
 import { UUID } from "crypto";
+import { Type } from "@prisma/client";
 
 const router = Router();
 
-router.get(
-  "/create-prompt",
+router.post(
+  "/",
   verifyToken,
   checkBan,
   async (req: Request, res: Response) => {
     try {
-      const improvedPrompt = await createNewPrompt((req as any).user);
+      const type = req.query.type as Type;
+      const improvedPrompt = await createNewPrompt((req as any).user, type);
       return res.json(improvedPrompt);
     } catch (error) {
       console.log(error);
