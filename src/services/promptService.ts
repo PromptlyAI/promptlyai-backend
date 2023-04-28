@@ -4,6 +4,14 @@ import {
   OpenAIApi,
 } from 'openai'
 import { PrismaClient, Prompt, Type, User } from '@prisma/client'
+import fs from 'fs'
+import AWS from 'aws-sdk'
+
+
+AWS.config.loadFromPath("./config.json")
+// Create S3 service object
+var s3 = new AWS.S3({params: {bucket: "slaktar-bucket"}});
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 })
@@ -198,8 +206,31 @@ export const getImprovedImage = async (
     prompt: prompt,
     n: 1,
     size: '1024x1024',
+    response_format: "b64_json"
   })
-  const image_url = response.data.data[0].url
+  const b64_json = response.data.data[0].b64_json
+
+  const buffer = Buffer.from(b64_json as string, 'base64');
+
+  const data = {
+    Key: `${promptId}.png`,
+    Body: buffer,
+    ContentEncoding: 'base64',
+    ContentType: 'image/png',
+    Bucket: 'slaktar-bucket'
+  }
+
+  s3.putObject(data, function(err, data){
+    if (err) { 
+      console.log(err);
+      console.log('Error uploading data: ', data); 
+    } else {
+      console.log(data);
+    }
+});
+  
+
+
   const tokenCost = 1
   if (user.totalImageBalance < tokenCost)
     throw new Error('Not enough token balance!')
@@ -211,13 +242,13 @@ export const getImprovedImage = async (
   const promptAnswer = await prisma.promptAnswer.create({
     data: {
       modell: 'dalle',
-      output: image_url || '',
+      output: '',
       tokenCost: `${tokenCost}`,
       promptId: promptId,
     },
   })
 
-  return { image_url, promptAnswer }
+  return { image_url: '', promptAnswer }
 }
 
 export const deletePrompt = async (user: User, promptId: string) => {

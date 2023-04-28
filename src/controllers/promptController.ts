@@ -11,7 +11,6 @@ import {
   getImprovedImage,
 } from "../services/promptService";
 import checkBan from "../middleware/checkBan";
-import { UUID } from "crypto";
 
 const router = Router();
 

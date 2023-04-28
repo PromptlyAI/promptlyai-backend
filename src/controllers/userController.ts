@@ -84,12 +84,13 @@ router.patch(
   "/resetPassword",
   async (req: Request<{}, {}, ResetPasswordDto>, res: Response) => {
     try {
-      await resetPassword(req.body.token, req.body.newPassword);
+      await resetPassword("req.body.token", "req.body.newPassword");
       res.send("Password has been reset");
     } catch (error) {
       return res.status(400).send(error);
     }
   }
 );
+
 
 export default router;
