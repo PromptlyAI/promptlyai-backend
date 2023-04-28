@@ -8,6 +8,7 @@ import sendResetPasswordEmail from "../services/mailService";
 import MailDto from "../interfaces/MailDto";
 import e from "express";
 import { cwd } from "process";
+import sgMail from '@sendgrid/mail'
 
 dotenv.config();
 const tokenSecret = process.env.TOKEN_SECRET;
@@ -93,7 +94,7 @@ export async function forgotPassword(email: string): Promise<string> {
 }
 
 export async function resetPassword(resetToken: string, newPassword: string) {
-  const user = await prisma.user.findFirst({
+   const user = await prisma.user.findFirst({
     where: {
       resetToken: resetToken,
     },
@@ -119,7 +120,10 @@ export async function resetPassword(resetToken: string, newPassword: string) {
       resetToken: null,
       resetTokenExpirationDate: null,
     },
-  });
+  }); 
+
+
+  
   throw new Error("Not implemented");
 }
 
