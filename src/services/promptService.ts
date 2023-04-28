@@ -10,7 +10,7 @@ import AWS from 'aws-sdk'
 
 AWS.config.loadFromPath("./config.json")
 // Create S3 service object
-var s3 = new AWS.S3({params: {bucket: "slaktar-bucket"}});
+var s3 = new AWS.S3({ params: { bucket: "slaktar-bucket" } });
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -74,7 +74,7 @@ export const enhanceText = async (
     },
   })
 
-  if(part === undefined) {
+  if (part === undefined) {
     part = "whole text";
   }
 
@@ -100,7 +100,7 @@ export const enhanceText = async (
     data: { output: outputPrompt },
   })
 
-  return { output : outputPrompt }
+  return { output: outputPrompt }
 }
 
 export const getImprovedImagePrompt = async (prompt: string, user: User) => {
@@ -219,16 +219,16 @@ export const getImprovedImage = async (
     ContentType: 'image/png',
     Bucket: 'slaktar-bucket'
   }
-
-  s3.putObject(data, function(err, data){
-    if (err) { 
+  const imageUrl = "https://slaktar-bucket.s3.eu-north-1.amazonaws.com/" + promptId + ".png"
+  s3.putObject(data, function (err, data) {
+    if (err) {
       console.log(err);
-      console.log('Error uploading data: ', data); 
+      console.log('Error uploading data: ', data);
     } else {
       console.log(data);
     }
-});
-  
+  });
+
 
 
   const tokenCost = 1
@@ -242,13 +242,13 @@ export const getImprovedImage = async (
   const promptAnswer = await prisma.promptAnswer.create({
     data: {
       modell: 'dalle',
-      output: '',
+      output: imageUrl,
       tokenCost: `${tokenCost}`,
       promptId: promptId,
     },
   })
 
-  return { image_url: '', promptAnswer }
+  return { image_url: imageUrl, promptAnswer }
 }
 
 export const deletePrompt = async (user: User, promptId: string) => {
@@ -331,7 +331,7 @@ export const getPromptInfo = async (user: User, promptId: string) => {
 
   return {
     input: prompt.input,
-    type: prompt.type ,
+    type: prompt.type,
     output: prompt.output,
     answer: prompt.promptAnswer[0]?.output || '',
   }
