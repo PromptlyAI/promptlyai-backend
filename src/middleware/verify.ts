@@ -12,6 +12,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
     const bearerHeader = req.headers.authorization;
     if (bearerHeader) {
       const bearerToken = bearerHeader.split(" ")[1];
+      console.log(process.env.TOKEN_SECRET)
       jwt.verify(
         bearerToken,
         process.env.TOKEN_SECRET || "",
