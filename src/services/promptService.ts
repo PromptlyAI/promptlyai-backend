@@ -150,7 +150,7 @@ function cleanPrompt(originalOutput: string) {
   let output = promptSplit[1];
 
   if (!output) {
-    output = 'No output found'; // Set a default value when the extracted output is empty
+    output = 'Something went wrong, please try again'; // Set a default value when the extracted output is empty
   }
 
   return output;
