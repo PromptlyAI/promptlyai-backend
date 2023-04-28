@@ -12,6 +12,7 @@ import {
 } from "../services/promptService";
 import checkBan from "../middleware/checkBan";
 import { UUID } from "crypto";
+import { Type } from "@prisma/client";
 
 const router = Router();
 
@@ -113,7 +114,8 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       console.log("getAllPrompts");
-      const prompts = await getAllPrompts((req as any).user);
+      const type = req.query.type as Type;
+      const prompts = await getAllPrompts((req as any).user, type);
       return res.json(prompts);
     } catch (error) {
       return res.status(400).send(error);

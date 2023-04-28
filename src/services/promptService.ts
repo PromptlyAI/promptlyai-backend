@@ -267,10 +267,11 @@ export const deleteAllMyPrompts = async (user: User) => {
   })
 }
 
-export const getAllPrompts = async (user: User) => {
+export const getAllPrompts = async (user: User, type?: Type) => {
   const prompts = await prisma.prompt.findMany({
     where: {
       userId: user.id,
+      type
     },
     include: {
       promptAnswer: true,
