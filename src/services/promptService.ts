@@ -211,7 +211,7 @@ export const getImprovedImage = async (
   const image_url = response.data.data[0].url
   const tokenCost = 1
   if (user.totalImageBalance < tokenCost)
-    throw new Error('Not enough token balance!')
+    throw new Error('Not enough image balance!')
 
   await prisma.user.update({
     where: { id: user.id },
