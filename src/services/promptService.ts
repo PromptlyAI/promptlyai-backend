@@ -4,6 +4,14 @@ import {
   OpenAIApi,
 } from 'openai'
 import { PrismaClient, Prompt, Type, User } from '@prisma/client'
+import fs from 'fs'
+import AWS from 'aws-sdk'
+
+
+AWS.config.loadFromPath("./config.json")
+// Create S3 service object
+var s3 = new AWS.S3({ params: { bucket: "slaktar-bucket" } });
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 })
@@ -27,13 +35,21 @@ const calculateTokenCost = (
   return num_tokens
 }
 
-export const createNewPrompt = async (user: User) => {
+export const createNewPrompt = async (user: User, type:Type) => {
+  const newPrompt = await prisma.prompt.create({
+    data: {
+      model: 'gpt-3.5-turbo',
+      tokenCost: `0`,
+      userId: user.id,
+      type
+    },
+  });
 
-
+  return { prompt: newPrompt }
 }
 
-export const getImprovedPrompt = async (prompt: string, user: User) => {
-  const response = await fetchImprovedPrompt(`${BasePrompt}${prompt}`)
+export const getImprovedPrompt = async (input: string, promptId:string,  user: User) => {
+  const response = await fetchImprovedPrompt(`${BasePrompt}${input}`)
   const tokenCost = calculateTokenCost(response.data.choices)
   if (user.totalTokenBalance < tokenCost)
     throw new Error('Not enough token balance!')
@@ -44,10 +60,15 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
   })
 
   const output = cleanPrompt(response.data.choices[0].message?.content || '')
+  const prompt = await prisma.prompt.findFirst({where:{id:promptId}})
+  if(prompt?.userId !== user.id || !prompt){
+    throw new Error("Could not access prompt");
+  }
 
-  const newPrompt = await prisma.prompt.create({
+  const updatedPrompt = await prisma.prompt.update({
+    where: { id: promptId },
     data: {
-      input: prompt,
+      input,
       output: output,
       model: 'gpt-3.5-turbo',
       tokenCost: `${tokenCost}`,
@@ -55,7 +76,8 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
     },
   })
 
-  return { response: response.data.choices, prompt: newPrompt }
+
+  return { response: response.data.choices, prompt: updatedPrompt }
 }
 
 export const enhanceText = async (
@@ -65,13 +87,14 @@ export const enhanceText = async (
   user: User,
 ) => {
   //leave instructions empty if you don't want them
+  //TODO: fix for new prompt system
   const prompt = await prisma.prompt.findFirst({
     where: {
       id: promptId,
     },
   })
 
-  if(part === undefined) {
+  if (part === undefined) {
     part = "whole text";
   }
 
@@ -95,11 +118,11 @@ export const enhanceText = async (
     data: { output: outputPrompt },
   })
 
-  return { output : outputPrompt }
+  return { output: outputPrompt }
 }
 
-export const getImprovedImagePrompt = async (prompt: string, user: User) => {
-  const response = await fetchImprovedPrompt(`${BaseImagePrompt}${prompt}`)
+export const getImprovedImagePrompt = async (input: string,promptId:string, user: User) => {
+  const response = await fetchImprovedPrompt(`${BaseImagePrompt}${input}`)
   const tokenCost = calculateTokenCost(response.data.choices)
   if (user.totalTokenBalance < tokenCost)
     throw new Error('Not enough token balance!')
@@ -111,18 +134,23 @@ export const getImprovedImagePrompt = async (prompt: string, user: User) => {
 
   const output = cleanPrompt(response.data.choices[0].message?.content || '')
 
-  const newPrompt = await prisma.prompt.create({
+  const prompt = await prisma.prompt.findFirst({where:{id:promptId}})
+  if(prompt?.userId !== user.id || !prompt){
+    throw new Error("Could not access prompt");
+  }
+
+  const updatedPrompt = await prisma.prompt.update({
+    where: { id: promptId },
     data: {
-      input: prompt,
+      input,
       output: output,
       model: 'gpt-3.5-turbo',
-      type: Type.IMAGE,
       tokenCost: `${tokenCost}`,
       userId: user.id,
     },
   })
 
-  return { response: response.data.choices, prompt: newPrompt }
+  return { response: response.data.choices, prompt: updatedPrompt }
 }
 
 function cleanPrompt(originalOutput: string) {
@@ -130,7 +158,7 @@ function cleanPrompt(originalOutput: string) {
   let output = promptSplit[1];
 
   if (!output) {
-    output = 'No output found'; // Set a default value when the extracted output is empty
+    output = 'Something went wrong, please try again'; // Set a default value when the extracted output is empty
   }
 
   return output;
@@ -207,8 +235,31 @@ export const getImprovedImage = async (
     prompt: prompt,
     n: 1,
     size: '1024x1024',
+    response_format: "b64_json"
   })
-  const image_url = response.data.data[0].url
+  const b64_json = response.data.data[0].b64_json
+
+  const buffer = Buffer.from(b64_json as string, 'base64');
+
+  const data = {
+    Key: `${promptId}.png`,
+    Body: buffer,
+    ContentEncoding: 'base64',
+    ContentType: 'image/png',
+    Bucket: 'slaktar-bucket'
+  }
+  const imageUrl = "https://slaktar-bucket.s3.eu-north-1.amazonaws.com/" + promptId + ".png"
+  s3.putObject(data, function (err, data) {
+    if (err) {
+      console.log(err);
+      console.log('Error uploading data: ', data);
+    } else {
+      console.log(data);
+    }
+  });
+
+
+
   const tokenCost = 1
   if (user.totalImageBalance < tokenCost)
     throw new Error('Not enough image balance!')
@@ -220,13 +271,13 @@ export const getImprovedImage = async (
   const promptAnswer = await prisma.promptAnswer.create({
     data: {
       modell: 'dalle',
-      output: image_url || '',
+      output: imageUrl,
       tokenCost: `${tokenCost}`,
       promptId: promptId,
     },
   })
 
-  return { image_url, promptAnswer }
+  return { image_url: imageUrl, promptAnswer }
 }
 
 export const deletePrompt = async (user: User, promptId: string) => {
@@ -276,10 +327,12 @@ export const deleteAllMyPrompts = async (user: User) => {
   })
 }
 
-export const getAllPrompts = async (user: User) => {
+
+export const getAllPrompts = async (user: User, type?: Type) => {
   const prompts = await prisma.prompt.findMany({
     where: {
       userId: user.id,
+      type
     },
     include: {
       promptAnswer: true,
@@ -309,7 +362,7 @@ export const getPromptInfo = async (user: User, promptId: string) => {
 
   return {
     input: prompt.input,
-    type: prompt.type ,
+    type: prompt.type,
     output: prompt.output,
     answer: prompt.promptAnswer[0]?.output || '',
   }
