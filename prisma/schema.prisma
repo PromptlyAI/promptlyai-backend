@@ -17,10 +17,10 @@ model User {
   resetToken               String?
   resetTokenExpirationDate DateTime?
   role                     Role      @default(USER)
-  totalTokenBalance        Int       @default(4000)
   isBanned                 Boolean   @default(false)
   banExpirationDate        DateTime?
   totalImageBalance        Int       @default(15)
+  totalTokenBalance        Int       @default(4000)
   prompts                  Prompt[]
 }
 
