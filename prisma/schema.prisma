@@ -21,6 +21,8 @@ model User {
   banExpirationDate        DateTime?
   totalImageBalance        Int       @default(15)
   totalTokenBalance        Int       @default(4000)
+  isVerified              Boolean   @default(false)
+  verifyToken             String?
   prompts                  Prompt[]
 }
 

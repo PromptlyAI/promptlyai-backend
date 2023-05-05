@@ -26,6 +26,10 @@ const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
               },
             });
 
+            if (!user?.isVerified) {
+              res.status(401).send("Not verified");
+            }
+
             (req as any).user = user;
 
             next();
