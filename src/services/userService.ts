@@ -5,10 +5,12 @@ import { RegisterDto, UserDto } from "../interfaces/UserDtos";
 import dotenv from "dotenv";
 import { randomUUID } from "crypto";
 import sendResetPasswordEmail from "../services/mailService";
-import MailDto from "../interfaces/MailDto";
+import { MailDto } from "../interfaces/MailDto";
 import e from "express";
 import { cwd } from "process";
 import sgMail from '@sendgrid/mail'
+import sendVerifyEmail from "../services/mailService";
+
 
 dotenv.config();
 const tokenSecret = process.env.TOKEN_SECRET;
@@ -17,14 +19,17 @@ const prisma = new PrismaClient();
 export async function register(user: RegisterDto) {
   checkBanList(user.name, user.email);
   checkEmailAdress(user.email);
+  const verifyToken = await createVerifyToken()
   const passhash = Bcrypt.hashSync(user.password, 10);
   await prisma.user.create({
     data: {
       name: user.name,
       email: user.email,
       passwordhash: passhash,
+      verifyToken,
     },
   });
+  await sendVerifyEmail({ to: user.email, token: verifyToken, body: "Verify your account" })
 }
 
 function checkEmailAdress(email: string) {
@@ -61,7 +66,7 @@ export async function login(user: UserDto) {
       }
     );
 
-    return {token : token};
+    return { token: token };
   }
 }
 
@@ -85,16 +90,16 @@ export async function forgotPassword(email: string): Promise<string> {
       resetTokenExpirationDate: new Date(Date.now() + 86400000),
     },
   });
-  sendResetPasswordEmail({
+  /* sendResetPasswordEmail({
     to: email,
     body: token,
-  });
+  }); */
   throw new Error("Not implemented");
   return token;
 }
 
 export async function resetPassword(resetToken: string, newPassword: string) {
-   const user = await prisma.user.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
       resetToken: resetToken,
     },
@@ -120,10 +125,10 @@ export async function resetPassword(resetToken: string, newPassword: string) {
       resetToken: null,
       resetTokenExpirationDate: null,
     },
-  }); 
+  });
 
 
-  
+
   throw new Error("Not implemented");
 }
 
@@ -150,6 +155,29 @@ async function createResetToken() {
   return token;
 }
 
+async function createVerifyToken() {
+  let token: string = "";
+  let exists: boolean = true;
+
+  while (exists) {
+    token = randomUUID();
+
+    const data = await prisma.user.findFirst({
+      where: {
+        verifyToken: {
+          equals: token,
+        },
+      },
+    });
+
+    if (data) exists = true;
+    else exists = false;
+    break;
+  }
+
+  return token;
+}
+
 async function checkBanList(name: string, email: string) {
   const data = await prisma.bannedUsers.findMany({
     where: {
@@ -163,4 +191,11 @@ async function checkBanList(name: string, email: string) {
   }
 }
 
-
+export async function verifyAccount(token: string) {
+  try {
+    await prisma.user.updateMany({ where: { verifyToken: token }, data: { isVerified: true } });
+  } catch (error) {
+    return false;
+  }
+  return true;
+}

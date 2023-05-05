@@ -11,6 +11,7 @@ import {
   deleteUser,
   forgotPassword,
   resetPassword,
+  verifyAccount
 } from "../services/userService";
 import verifyToken from "../middleware/verify";
 const router = Router();
@@ -41,6 +42,17 @@ router.get(
     }
   }
 );
+
+router.put("/verify", async (req: Request, res: Response) => {
+  try {
+    const isVerified = await verifyAccount(req.body.token)
+    if (isVerified) {
+      res.status(200).send("Account verified")
+    }
+  } catch (error) {
+    res.status(500).json({ error })
+  }
+})
 
 router.post(
   "/register",

@@ -1,18 +1,18 @@
 import sgMail from "@sendgrid/mail";
 import { config } from "dotenv";
-import MailDto from "../interfaces/MailDto";
+import { MailDto, VerifyAccountDto } from "../interfaces/MailDto";
 
 config();
 
 //ÄNDRA SENARE!!!!
-export default function sendResetPasswordEmail(emailDto: MailDto): void {
+export default async function sendVerifyEmail(emailDto: VerifyAccountDto): Promise<void> {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
-  const resetPasswordLink = `URL/resetpassword?token=${emailDto.body}`;
+  const resetPasswordLink = `${process.env.FRONTEND_URL}/verify?token=${emailDto.token}`;
 
   const msg = {
     to: emailDto.to,
-    from: "DoNotReply",
+    from: "promptlylabs@gmail.com",
     subject: "Reset password",
     text: `Reset password: ${resetPasswordLink}`,
     html: `<a href="${resetPasswordLink}">Reset password</a>`,
