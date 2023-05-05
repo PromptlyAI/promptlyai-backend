@@ -8,7 +8,7 @@ config();
 export default async function sendVerifyEmail(emailDto: VerifyAccountDto): Promise<void> {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
-  const resetPasswordLink = `${process.env.FRONTEND_URL}/verify?token=${emailDto.token}`;
+  const resetPasswordLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailDto.token}`;
 
   const msg = {
     to: emailDto.to,
