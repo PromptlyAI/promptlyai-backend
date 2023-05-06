@@ -117,7 +117,7 @@ router.put(
 );
 
 router.post(
-  "/forgotPassword",
+  "/forgot-password",
   async (req: Request<{}, {}, ForgotPasswordDto>, res: Response) => {
     try {
       res.json(await forgotPassword(req.body.email));
@@ -133,7 +133,7 @@ router.post(
 );
 
 router.patch(
-  "/resetPassword",
+  "/reset-password",
   async (req: Request<{}, {}, ResetPasswordDto>, res: Response) => {
     try {
       await resetPassword(req.body.token, req.body.newPassword);
