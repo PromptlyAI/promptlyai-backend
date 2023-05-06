@@ -8,14 +8,14 @@ config();
 export default async function sendVerifyEmail(emailDto: VerifyAccountDto): Promise<void> {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
-  const resetPasswordLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailDto.token}`;
+  const verifyEmailLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailDto.token}`;
 
   const msg = {
     to: emailDto.to,
     from: "promptlylabs@gmail.com",
-    subject: "Reset password",
-    text: `Reset password: ${resetPasswordLink}`,
-    html: `<a href="${resetPasswordLink}">Reset password</a>`,
+    subject: "Verify email",
+    text: `Verify Email: ${verifyEmailLink}`,
+    html: `<a href="${verifyEmailLink}">Verify Email</a>`,
   };
 
   sgMail
