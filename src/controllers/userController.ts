@@ -11,7 +11,8 @@ import {
   deleteUser,
   forgotPassword,
   resetPassword,
-  verifyAccount
+  verifyAccount,
+  resendVerification
 } from "../services/userService";
 import verifyToken from "../middleware/verify";
 const router = Router();
@@ -99,6 +100,22 @@ router.delete("/", verifyToken, async (req: Request, res: Response) => {
   }
 });
 
+router.put(
+  "/send-verify-email",
+  async (req: Request, res: Response) => {
+    try {
+      res.json(await resendVerification(req.query.email as string));
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
+    }
+  }
+);
+
 router.post(
   "/forgotPassword",
   async (req: Request<{}, {}, ForgotPasswordDto>, res: Response) => {
@@ -134,3 +151,4 @@ router.patch(
 
 
 export default router;
+

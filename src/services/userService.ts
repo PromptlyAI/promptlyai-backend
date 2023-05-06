@@ -32,6 +32,19 @@ export async function register(user: RegisterDto) {
   await sendVerifyEmail({ to: user.email, token: verifyToken, body: "Verify your account" })
 }
 
+export async function resendVerification(email:string) {
+  const verifyToken = await createVerifyToken()
+  await prisma.user.update({
+    where:{
+      email
+    },
+    data: {
+      verifyToken
+    },
+  });
+  await sendVerifyEmail({ to: email, token: verifyToken, body: "Verify your account" })
+}
+
 function checkEmailAdress(email: string) {
   const emailRegex = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}(\.[a-zA-Z]{2,6}){0,1})$/;
   if (!emailRegex.test(email)) {
