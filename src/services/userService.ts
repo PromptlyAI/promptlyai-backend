@@ -4,12 +4,11 @@ import { PrismaClient, User } from "@prisma/client";
 import { RegisterDto, UserDto } from "../interfaces/UserDtos";
 import dotenv from "dotenv";
 import { randomUUID } from "crypto";
-import sendResetPasswordEmail from "../services/mailService";
 import { MailDto } from "../interfaces/MailDto";
 import e from "express";
 import { cwd } from "process";
 import sgMail from '@sendgrid/mail'
-import sendVerifyEmail from "../services/mailService";
+import { sendResetPassword, sendVerifyEmail } from "./mailService";
 
 
 dotenv.config();
@@ -91,7 +90,7 @@ export async function deleteUser(user: User) {
   });
 }
 
-export async function forgotPassword(email: string): Promise<string> {
+export async function forgotPassword(email: string) {
   const token = await createResetToken();
 
   await prisma.user.update({
@@ -103,12 +102,8 @@ export async function forgotPassword(email: string): Promise<string> {
       resetTokenExpirationDate: new Date(Date.now() + 86400000),
     },
   });
-  /* sendResetPasswordEmail({
-    to: email,
-    body: token,
-  }); */
-  throw new Error("Not implemented");
-  return token;
+
+  sendResetPassword({ to: email, token: token, body: "Reset password" });
 }
 
 export async function resetPassword(resetToken: string, newPassword: string) {
@@ -140,9 +135,6 @@ export async function resetPassword(resetToken: string, newPassword: string) {
     },
   });
 
-
-
-  throw new Error("Not implemented");
 }
 
 async function createResetToken() {
