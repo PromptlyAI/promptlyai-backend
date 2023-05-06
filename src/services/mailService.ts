@@ -40,7 +40,7 @@ export default async function sendVerifyEmail(emailDto: VerifyAccountDto): Promi
           display: inline-block;
           padding: 10px 20px;
           background-color: #0066ff;
-          color: #fff;
+          color: #white;
           text-decoration: none;
           font-weight: bold;
           border-radius: 5px;
