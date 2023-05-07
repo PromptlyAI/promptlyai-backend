@@ -118,7 +118,7 @@ router.put(
 
 router.post(
   "/forgot-password",
-  async (req: Request<{}, {}, ForgotPasswordDto>, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       res.json(await forgotPassword(req.body.email));
     } catch (error) {
@@ -134,7 +134,7 @@ router.post(
 
 router.patch(
   "/reset-password",
-  async (req: Request<{}, {}, ResetPasswordDto>, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       await resetPassword(req.body.token, req.body.newPassword);
       res.json("Password has been reset");
