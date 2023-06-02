@@ -10,15 +10,14 @@ dotenv.config();
 const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
   try {
     const bearerHeader = req.headers.authorization;
-    console.log(bearerHeader);
     if (bearerHeader) {
       const bearerToken = bearerHeader.split(" ")[1];
+      console.log(process.env.TOKEN_SECRET)
       jwt.verify(
         bearerToken,
         process.env.TOKEN_SECRET || "",
         async (err, decodedToken: any) => {
           if (err) {
-            console.log(err);
             res.status(401).send("Not logged-in");
           } else {
             const user = await prisma.user.findUnique({
@@ -26,6 +25,10 @@ const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
                 id: decodedToken.id,
               },
             });
+
+            if (!user?.isVerified) {
+              res.status(401).send("Not verified");
+            }
 
             (req as any).user = user;
 
