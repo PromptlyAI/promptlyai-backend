@@ -27,8 +27,9 @@ const calculateTokenCost = (
   return num_tokens
 }
 
-export const getImprovedPrompt = async (prompt: string, user: User) => {
-  const response = await fetchImprovedPrompt(`${BasePrompt}${prompt}`)
+export const getImprovedPrompt = async (prompt: string,  Randomness: string, user: User) => {
+
+  const response = await fetchImprovedPrompt(`${BasePrompt} Randomness: "${Randomness}" Prompt to transform: "${prompt}"`)
   const tokenCost = calculateTokenCost(response.data.choices)
   if (user.totalTokenBalance < tokenCost)
     throw new Error('Not enough token balance!')

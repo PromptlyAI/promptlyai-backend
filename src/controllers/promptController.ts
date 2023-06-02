@@ -22,7 +22,9 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const prompt = req.query.prompt as string;
-      const improvedPrompt = await getImprovedPrompt(prompt, (req as any).user);
+      const randomness = req.query.randomness as string;
+
+      const improvedPrompt = await getImprovedPrompt(prompt,randomness,(req as any).user);
       return res.json(improvedPrompt);
     } catch (error) {
       return res.status(400).send(error);
