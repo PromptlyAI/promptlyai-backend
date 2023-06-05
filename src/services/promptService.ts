@@ -9,6 +9,7 @@ const configuration = new Configuration({
 })
 const BasePrompt = process.env.BASE_PROMPT
 const BaseImagePrompt = process.env.BASE_IMAGE_PROMPT
+const questioningPrompt = process.env.PROMPT_QUESTIONING
 const TextEnhancePrompt = process.env.TEXT_ENHANCE_PROMPT
 const prisma = new PrismaClient({ log: ['query', 'error'] })
 const openai = new OpenAIApi(configuration)
@@ -27,8 +28,9 @@ const calculateTokenCost = (
   return num_tokens
 }
 
-export const getImprovedPrompt = async (prompt: string, user: User) => {
-  const response = await fetchImprovedPrompt(`${BasePrompt}${prompt}`)
+export const getImprovedPrompt = async (prompt: string, user: User, questionPrompt: boolean) => {
+  console.log(`${BasePrompt}${prompt}${questionPrompt ? questioningPrompt : ''}`)
+  const response = await fetchImprovedPrompt(`${questionPrompt ? questioningPrompt : ''}${BasePrompt}${prompt}`)
   const tokenCost = calculateTokenCost(response.data.choices)
   if (user.totalTokenBalance < tokenCost)
     throw new Error('Not enough token balance!')
@@ -40,6 +42,12 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
 
   const output = cleanPrompt(response.data.choices[0].message?.content || '')
 
+  const hasQuestion = response.data.choices[0].message?.content.charAt(0) === '?';
+  let questions: Array<string> = []
+  if (hasQuestion) {
+    questions = response.data.choices[0].message?.content.split('?') || []
+  }
+
   const newPrompt = await prisma.prompt.create({
     data: {
       input: prompt,
@@ -50,7 +58,7 @@ export const getImprovedPrompt = async (prompt: string, user: User) => {
     },
   })
 
-  return { response: response.data.choices, prompt: newPrompt }
+  return { response: response.data.choices, prompt: newPrompt, hasQuestion, questions: hasQuestion ? questions : [] }
 }
 
 export const enhanceText = async (
@@ -66,7 +74,7 @@ export const enhanceText = async (
     },
   })
 
-  if(part === undefined) {
+  if (part === undefined) {
     part = "whole text";
   }
 
@@ -92,7 +100,7 @@ export const enhanceText = async (
     data: { output: outputPrompt },
   })
 
-  return { output : outputPrompt }
+  return { output: outputPrompt }
 }
 
 export const getImprovedImagePrompt = async (prompt: string, user: User) => {

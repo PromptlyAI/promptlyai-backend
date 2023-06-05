@@ -22,7 +22,8 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const prompt = req.query.prompt as string;
-      const improvedPrompt = await getImprovedPrompt(prompt, (req as any).user);
+      const questionPrompt = Boolean(req.query.questionPrompt);
+      const improvedPrompt = await getImprovedPrompt(prompt, (req as any).user, questionPrompt);
       return res.json(improvedPrompt);
     } catch (error) {
       return res.status(400).send(error);
