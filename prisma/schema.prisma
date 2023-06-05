@@ -13,36 +13,42 @@ model User {
   email                    String    @unique
   name                     String
   passwordhash             String
-  totalTokenBalance        Int       @default(10000)
-  totalImageBalance        Int       @default(15)
-  role                     Role      @default(USER)
   createdAt                DateTime  @default(now())
   resetToken               String?
   resetTokenExpirationDate DateTime?
+  role                     Role      @default(USER)
   isBanned                 Boolean   @default(false)
   banExpirationDate        DateTime?
+  totalImageBalance        Int       @default(15)
+  totalTokenBalance        Int       @default(4000)
+  isVerified              Boolean   @default(false)
+  verifyToken             String?
   prompts                  Prompt[]
 }
 
 model Prompt {
   id           String         @id @default(uuid())
-  user         User           @relation(fields: [userId], references: [id])
   userId       String
   model        String
-  type         Type           @default(TEXT)
-  input        String         @db.LongText()
-  output       String         @db.LongText()
+  input        String?        @db.LongText
+  output       String?        @db.LongText
   tokenCost    String
+  type         Type           @default(TEXT)
+  user         User           @relation(fields: [userId], references: [id])
   promptAnswer PromptAnswer[]
+
+  @@index([userId])
 }
 
 model PromptAnswer {
   id        String @id @default(uuid())
-  prompt    Prompt @relation(fields: [promptId], references: [id])
-  promptId  String @unique @default(uuid())
+  promptId  String @default(uuid())
   modell    String
-  output    String @db.LongText()
+  output    String @db.LongText
   tokenCost String
+  prompt    Prompt @relation(fields: [promptId], references: [id])
+
+  @@index([promptId])
 }
 
 model BannedUsers {

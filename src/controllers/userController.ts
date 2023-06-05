@@ -11,6 +11,8 @@ import {
   deleteUser,
   forgotPassword,
   resetPassword,
+  verifyAccount,
+  resendVerification
 } from "../services/userService";
 import verifyToken from "../middleware/verify";
 const router = Router();
@@ -21,7 +23,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const user = (req as any).user;
-      res.send({
+      res.json({
         name: user.name,
         email: user.email,
         totalTokenBalance: user.totalTokenBalance,
@@ -33,19 +35,39 @@ router.get(
       });
     } catch (error) {
       console.log(error);
-      return res.status(400).send(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
+
+router.put("/verify", async (req: Request, res: Response) => {
+  try {
+    const isVerified = await verifyAccount(req.body.token)
+    if (isVerified) {
+      res.status(200).send("Account verified")
+    }
+  } catch (error) {
+    res.status(500).json({ error })
+  }
+})
 
 router.post(
   "/register",
   async (req: Request<{}, {}, RegisterDto>, res: Response) => {
     try {
       await register(req.body);
-      return res.send("User created");
+      return res.json("User created");
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
@@ -53,43 +75,80 @@ router.post(
 router.post("/login", async (req: Request<{}, {}, UserDto>, res: Response) => {
   try {
     const token = await login(req.body);
-    return res.send(token);
+    return res.json(token);
   } catch (error) {
     console.log(error);
-    return res.status(400).send(error);
+    if (error instanceof Error) {
+      return res.status(400).json({ error: error.message }); // Send the error message to the client
+    } else {
+      return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+    }
   }
 });
 
 router.delete("/", verifyToken, async (req: Request, res: Response) => {
   try {
     await deleteUser((req as any).user);
-    return res.send("User deleted");
+    return res.json("User deleted");
   } catch (error) {
-    return res.status(400).send(error);
+    console.log(error);
+    if (error instanceof Error) {
+      return res.status(400).json({ error: error.message }); // Send the error message to the client
+    } else {
+      return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+    }
   }
 });
 
-router.post(
-  "/forgotPassword",
-  async (req: Request<{}, {}, ForgotPasswordDto>, res: Response) => {
+router.put(
+  "/send-verify-email",
+  async (req: Request, res: Response) => {
     try {
-      res.send(await forgotPassword(req.body.email));
+      res.json(await resendVerification(req.query.email as string));
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
+    }
+  }
+);
+
+router.post(
+  "/forgot-password",
+  async (req: Request, res: Response) => {
+    try {
+      res.json(await forgotPassword(req.body.email));
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
 
 router.patch(
-  "/resetPassword",
-  async (req: Request<{}, {}, ResetPasswordDto>, res: Response) => {
+  "/reset-password",
+  async (req: Request, res: Response) => {
     try {
       await resetPassword(req.body.token, req.body.newPassword);
-      res.send("Password has been reset");
+      res.json("Password has been reset");
     } catch (error) {
-      return res.status(400).send(error);
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(400).json({ error: error.message }); // Send the error message to the client
+      } else {
+        return res.status(400).json({ error: 'An unknown error occurred' }); // Send a generic error message if the error is not an instance of Error
+      }
     }
   }
 );
 
+
 export default router;
+

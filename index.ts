@@ -5,11 +5,13 @@ import { getImprovedPrompt } from "./src/services/promptService";
 import adminController from "./src/controllers/adminController";
 import promptController from "./src/controllers/promptController";
 import cors from "cors";
+import sgMail from '@sendgrid/mail'
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
+sgMail.setApiKey(process.env.SENDGRID_API_KEY as string)
 
 app.use(express.json());
 // use cors package
@@ -25,5 +27,6 @@ app.get("/", (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+
 });
 
