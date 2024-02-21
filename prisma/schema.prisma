@@ -51,6 +51,13 @@ model PromptAnswer {
   @@index([promptId])
 }
 
+model PromptGradPrompt{
+  id        String @id @default(uuid())
+  task String
+  trainingData String @db.LongText 
+  output String @db.LongText
+}
+
 model BannedUsers {
   id    String  @id @default(uuid())
   email String? @unique
