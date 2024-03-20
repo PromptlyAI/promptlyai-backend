@@ -4,6 +4,8 @@ import userController from "./src/controllers/userController";
 import { getImprovedPrompt } from "./src/services/promptService";
 import adminController from "./src/controllers/adminController";
 import promptController from "./src/controllers/promptController";
+import gradController from "./src/controllers/gradController";
+
 import cors from "cors";
 import sgMail from '@sendgrid/mail'
 
@@ -20,6 +22,7 @@ app.use(cors());
 app.use("/user", userController);
 app.use("/admin", adminController);
 app.use("/prompt", promptController);
+app.use("/grad", gradController); 
 
 app.get("/", (req: Request, res: Response) => {
   res.send("PromptlyLabs api");
